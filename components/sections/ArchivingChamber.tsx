@@ -31,12 +31,13 @@ export function ArchivingChamber() {
         {/* Content */}
         <div className="relative z-10 text-center">
           <h2
-            className="text-frost font-extralight"
+            className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-green-300 via-emerald-400 to-teal-500"
             style={{
               fontSize: 'clamp(48px, 10vw, 120px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              textShadow: '0 10px 40px rgba(52, 211, 153, 0.2)',
+              filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.2))',
             }}
           >
             THE LOOM
@@ -57,12 +58,14 @@ export function ArchivingChamber() {
       {/* Right Side */}
       <div className="w-1/2 relative flex items-center justify-center px-12 bg-gradient-to-b from-ink via-ink/50 to-void">
         {/* Subtle accent */}
-        <div className="absolute top-0 right-0 w-px h-1/2 bg-gradient-to-b from-pulse/20 to-transparent" />
+        <div className="absolute top-0 right-0 w-px h-1/2 bg-gradient-to-b from-emerald-500/20 to-transparent" />
 
         {/* Form Container */}
         <div className="relative z-10 w-full max-w-md">
-          <div className="backdrop-blur-xl bg-black/40 border border-pulse/30 rounded-xl p-10">
-            <h3 className="type-micro text-pulse/80 tracking-widest mb-8">DEPOSIT FRAGMENT</h3>
+          <div className="backdrop-blur-xl bg-black/40 border border-emerald-500/30 rounded-xl p-10 hover:border-emerald-500/50 hover:bg-black/50 transition-all">
+            <h3 className="type-micro text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500 tracking-widest mb-8">
+              DEPOSIT FRAGMENT
+            </h3>
             <TimeCapsuleCreator onCapsuleCreated={handleCapsuleCreated} />
           </div>
         </div>
