@@ -6,7 +6,7 @@ export function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (audioRef.current) {
@@ -14,25 +14,33 @@ export function AudioPlayer() {
     }
   }, [volume]);
 
-  useEffect(() => {
-    if (audioRef.current && hasInteracted) {
-      if (isPlaying) {
-        audioRef.current.play().catch((err) => {
-          console.error('Audio play error:', err);
-          setIsPlaying(false);
-        });
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isPlaying, hasInteracted]);
-
   const togglePlayPause = () => {
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(!isPlaying);
+    if (!audioRef.current) return;
+
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.load();
+        const playPromise = audioRef.current.play();
+
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+              setError('');
+            })
+            .catch((err) => {
+              console.error('Audio play error:', err);
+              setError('Audio unavailable');
+              setIsPlaying(false);
+            });
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Audio error');
     }
   };
 
@@ -44,7 +52,10 @@ export function AudioPlayer() {
         loop
         crossOrigin="anonymous"
         preload="auto"
+        onCanPlay={() => setError('')}
+        onError={() => setError('Audio unavailable')}
       >
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
         <source src="https://assets.mixkit.co/active_storage/musics/677-ethereal-ambient-106.mp3" type="audio/mpeg" />
       </audio>
 
