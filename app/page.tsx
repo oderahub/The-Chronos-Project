@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { LoadingAnimation } from '@/components/LoadingAnimation';
+import { AudioPlayer } from '@/components/AudioPlayer';
 import { LandingPage } from '@/components/sections/LandingPage';
 import { OnboardingTerminal } from '@/components/sections/OnboardingTerminal';
 import { ArchivingChamber } from '@/components/sections/ArchivingChamber';
@@ -21,11 +23,15 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex w-[400vw]">
-      <LandingPage />
-      <OnboardingTerminal />
-      <ArchivingChamber />
-      <MemoryGallery />
-    </main>
+    <>
+      <LoadingAnimation />
+      <AudioPlayer />
+      <main className="flex w-[400vw]">
+        <LandingPage />
+        <OnboardingTerminal />
+        <ArchivingChamber />
+        <MemoryGallery />
+      </main>
+    </>
   );
 }
