@@ -7,26 +7,43 @@ export function MemoryGallery() {
   const capsules = useCapsuleStore((state) => state.capsules);
 
   return (
-    <section className="w-screen h-screen flex flex-col items-center justify-center px-8 bg-gradient-to-b from-void via-ink to-graphite relative overflow-hidden">
-      {/* Grain texture background */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none" style={{
-        backgroundImage: 'url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27100%27%20height=%27100%27%3E%3Cfilter%20id=%27noise%27%3E%3CfeTurbulence%20type=%27fractalNoise%27%20baseFrequency=%270.9%27%20numOctaves=%274%27%20seed=%275%27/%3E%3C/filter%3E%3Crect%20width=%27100%27%20height=%27100%27%20filter=%27url(%23noise)%27%20opacity=%271%27/%3E%3C/svg%3E")',
-      }} />
+    <section className="w-screen h-screen flex flex-col items-center justify-center px-8 bg-gradient-to-b from-void via-ink to-graphite relative overflow-y-auto overflow-x-hidden">
+      {/* Background geometric elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-0 w-1 h-1/2 bg-gradient-to-b from-pulse/20 to-transparent" />
+        <div className="absolute bottom-1/4 right-1/4 border border-frost/10 w-96 h-96 transform rotate-45" />
+        <div className="absolute top-0 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-frost/20 to-transparent" />
+      </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full">
-        <h1 className="type-headline text-frost text-center mb-12">THE ARCHIVE</h1>
+      <div className="relative z-10 w-full max-w-4xl">
+        {/* Title Section */}
+        <div className="text-center mb-16 animate-rise">
+          <div className="inline-block mb-6">
+            <h1 className="type-display text-frost text-center text-4xl" style={{ letterSpacing: '-0.02em' }}>
+              THE ARCHIVE
+            </h1>
+            <div className="h-px w-24 bg-gradient-to-r from-transparent via-pulse to-transparent mx-auto mt-6" />
+          </div>
+        </div>
 
         {capsules.length === 0 ? (
-          <div className="text-center">
-            <p className="type-body text-ash max-w-xl mx-auto">
-              Your archive is empty. Deposit your first memory in The Loom.
-            </p>
+          <div className="text-center py-20 animate-rise" style={{ animationDelay: '200ms' }}>
+            <div className="inline-block p-12 border border-frost/20 rounded-xl">
+              <p className="type-headline text-ash max-w-md mb-4">
+                Your archive is empty.
+              </p>
+              <p className="type-body text-ash/70">
+                Deposit your first memory in The Loom.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-8 items-center">
+          <div className="space-y-8">
             {capsules.map((capsule, idx) => (
-              <CapsuleDisplay key={idx} capsule={capsule} />
+              <div key={idx} className="animate-rise" style={{ animationDelay: `${idx * 100}ms` }}>
+                <CapsuleDisplay capsule={capsule} />
+              </div>
             ))}
           </div>
         )}
