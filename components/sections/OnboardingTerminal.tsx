@@ -49,12 +49,13 @@ export function OnboardingTerminal() {
           }}
         >
           <h1
-            className="text-frost font-extralight mb-12"
+            className="font-extralight mb-12 text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-pink-400 to-red-500"
             style={{
               fontSize: 'clamp(50px, 12vw, 160px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              textShadow: '0 10px 40px rgba(255, 87, 34, 0.2)',
+              filter: 'drop-shadow(0 0 20px rgba(255, 152, 0, 0.2))',
             }}
           >
             CONSCIOUSNESS<br />PRESERVED
@@ -77,7 +78,7 @@ export function OnboardingTerminal() {
       {/* CTA Button */}
       <button
         onClick={handleInitialize}
-        className="absolute bottom-12 right-12 px-8 py-4 border border-pulse/50 text-frost type-body font-light hover:border-pulse hover:bg-pulse/5 transition-all"
+        className="absolute bottom-12 right-12 px-8 py-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/50 text-orange-300 type-body font-light hover:border-orange-400 hover:from-orange-500/30 hover:to-red-500/30 hover:shadow-lg hover:shadow-orange-500/20 transition-all"
       >
         INITIALIZE ARCHIVING →
       </button>
