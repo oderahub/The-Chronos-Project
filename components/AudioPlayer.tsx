@@ -62,14 +62,21 @@ export function AudioPlayer() {
       {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
+        disabled={!!error}
         className={`transition-all ${
-          isPlaying
+          error
+            ? 'text-red-500/50 cursor-not-allowed'
+            : isPlaying
             ? 'text-cyan-400 drop-shadow-lg drop-shadow-cyan-500/50'
             : 'text-cyan-500/60 hover:text-cyan-400'
         }`}
-        title={isPlaying ? 'Pause' : 'Play'}
+        title={error || (isPlaying ? 'Pause' : 'Play')}
       >
-        {isPlaying ? (
+        {error ? (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" />
+          </svg>
+        ) : isPlaying ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M5 3a2 2 0 012-2h6a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V3z" />
           </svg>
@@ -81,7 +88,7 @@ export function AudioPlayer() {
       </button>
 
       {/* Volume Slider */}
-      {isPlaying && (
+      {isPlaying && !error && (
         <>
           <input
             type="range"
@@ -101,6 +108,13 @@ export function AudioPlayer() {
             {Math.round(volume * 100)}%
           </span>
         </>
+      )}
+
+      {/* Error Tooltip */}
+      {error && (
+        <span className="text-red-400/80 text-xs font-light whitespace-nowrap">
+          {error}
+        </span>
       )}
     </div>
   );
