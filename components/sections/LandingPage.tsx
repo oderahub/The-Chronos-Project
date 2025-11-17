@@ -31,30 +31,47 @@ function NavigationBar() {
 
   return (
     <nav className="absolute top-0 left-0 right-0 z-50 py-6 px-8">
+      <style>{`
+        @keyframes morph-logo {
+          0%, 100% {
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+          }
+          50% {
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+          }
+        }
+      `}</style>
       <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 border-2 border-pulse flex items-center justify-center">
-              <span className="text-pulse font-light">◆</span>
+            <div
+              className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-xs"
+              style={{
+                animation: 'morph-logo 3s ease-in-out infinite',
+              }}
+            >
+              ◆
             </div>
-            <span className="type-micro text-frost tracking-widest hidden sm:inline">CHRONOS</span>
+            <span className="type-micro text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 tracking-widest hidden sm:inline">
+              CHRONOS
+            </span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
-            <a href="#" className="type-body text-ash/70 hover:text-frost transition-colors text-sm font-light">
+            <a href="#" className="type-body text-ash/70 hover:text-cyan-400 transition-colors text-sm font-light">
               Fragments
             </a>
-            <a href="#" className="type-body text-ash/70 hover:text-frost transition-colors text-sm font-light">
+            <a href="#" className="type-body text-ash/70 hover:text-blue-400 transition-colors text-sm font-light">
               Archive
             </a>
-            <a href="#" className="type-body text-ash/70 hover:text-frost transition-colors text-sm font-light">
+            <a href="#" className="type-body text-ash/70 hover:text-purple-400 transition-colors text-sm font-light">
               Loom
             </a>
           </div>
 
           <button
             onClick={handleNavClick}
-            className="px-6 py-2 border border-pulse/50 text-frost type-body text-sm font-light hover:border-pulse transition-colors"
+            className="px-6 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body text-sm font-light hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all"
           >
             Enter
           </button>
@@ -120,12 +137,13 @@ export function LandingPage() {
           }}
         >
           <h1
-            className="text-frost font-extralight"
+            className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500"
             style={{
               fontSize: 'clamp(60px, 14vw, 200px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              textShadow: '0 10px 40px rgba(0, 122, 255, 0.3)',
+              filter: 'drop-shadow(0 0 20px rgba(0, 212, 255, 0.2))',
             }}
           >
             FRAGMENTED<br />REALITY
@@ -133,11 +151,11 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* Bottom CTA - Minimal */}
+      {/* Bottom CTA - Vibrant */}
       <div className="absolute bottom-12 right-12">
         <button
           onClick={handleBeginArchiving}
-          className="px-8 py-4 border border-pulse/50 text-frost type-body font-light hover:border-pulse hover:bg-pulse/5 transition-all"
+          className="px-8 py-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body font-light hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
         >
           BEGIN ARCHIVING →
         </button>
