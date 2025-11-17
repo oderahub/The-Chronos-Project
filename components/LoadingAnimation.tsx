@@ -16,37 +16,27 @@ export function LoadingAnimation() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void overflow-hidden">
       <style>{`
         @keyframes morph {
           0% {
-            clip-path: polygon(
-              20% 0%, 100% 0%, 100% 100%, 0% 100%
-            );
+            clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
             background: linear-gradient(135deg, #007AFF 0%, #00D4FF 100%);
           }
           25% {
-            clip-path: polygon(
-              0% 20%, 100% 0%, 100% 80%, 20% 100%
-            );
+            clip-path: polygon(0% 20%, 100% 0%, 100% 80%, 20% 100%);
             background: linear-gradient(135deg, #FF1744 0%, #00BCD4 100%);
           }
           50% {
-            clip-path: polygon(
-              30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%
-            );
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
             background: linear-gradient(135deg, #00D4FF 0%, #FF1744 100%);
           }
           75% {
-            clip-path: polygon(
-              50% 0%, 100% 50%, 50% 100%, 0% 50%
-            );
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
             background: linear-gradient(135deg, #FF6F00 0%, #00BCD4 100%);
           }
           100% {
-            clip-path: polygon(
-              20% 0%, 100% 0%, 100% 100%, 0% 100%
-            );
+            clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
             background: linear-gradient(135deg, #007AFF 0%, #00D4FF 100%);
           }
         }
@@ -65,4 +55,9 @@ export function LoadingAnimation() {
           width: 200px;
           height: 200px;
         }
-      `}
+      `}</style>
+
+      <div className="morphing-shape" />
+    </div>
+  );
+}
