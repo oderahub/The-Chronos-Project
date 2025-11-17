@@ -90,34 +90,45 @@ export function AudioPlayer() {
     { freq: 196.0, duration: 3.0 },   // G3 pad
   ];
 
-  const getTotalMelodyDuration = () => {
-    return melodyNotes.reduce((sum, note) => sum + note.duration, 0);
+  const getTotalMelodyDuration = (melody: MelodyNote[]) => {
+    return melody.reduce((sum, note) => sum + note.duration, 0);
   };
 
   const playNote = (
     frequency: number,
     duration: number,
     startTime: number,
-    audioContext: AudioContext
+    audioContext: AudioContext,
+    gainNode: GainNode,
+    isAmbient: boolean = false
   ) => {
     try {
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
 
       osc.frequency.value = frequency;
-      osc.type = 'sine';
+      osc.type = isAmbient ? 'triangle' : 'sine';
 
-      // Connect: oscillator -> gain -> master gain -> destination
+      // Connect: oscillator -> gain -> target gain node
       osc.connect(gain);
-      gain.connect(masterGainRef.current!);
+      gain.connect(gainNode);
 
-      // Envelope (ADSR)
       const now = startTime;
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.3, now + 0.05); // Attack
-      gain.gain.linearRampToValueAtTime(0.2, now + 0.1);  // Decay
-      gain.gain.setValueAtTime(0.2, now + duration - 0.1); // Sustain
-      gain.gain.linearRampToValueAtTime(0, now + duration); // Release
+
+      if (isAmbient) {
+        // Ambient pad envelope (very smooth)
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.3); // Slow attack
+        gain.gain.setValueAtTime(0.15, now + duration - 0.3); // Sustain
+        gain.gain.linearRampToValueAtTime(0, now + duration); // Slow release
+      } else {
+        // Melodic note envelope (ADSR)
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.04); // Attack
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.08); // Decay
+        gain.gain.setValueAtTime(0.18, now + duration - 0.08); // Sustain
+        gain.gain.linearRampToValueAtTime(0, now + duration); // Release
+      }
 
       osc.start(now);
       osc.stop(now + duration);
@@ -137,15 +148,29 @@ export function AudioPlayer() {
       startTime = currentTime + 0.01; // Start slightly in the future
     }
 
-    const melodyDuration = getTotalMelodyDuration();
+    const currentMelody = sectionMelodies[currentMelodyRef.current];
+    const melodyDuration = getTotalMelodyDuration(currentMelody);
     let noteTime = startTime;
 
-    // Schedule notes while we're within the lookahead window
+    // Schedule melody notes
     while (noteTime < currentTime + SCHEDULE_AHEAD_TIME) {
-      for (const note of melodyNotes) {
+      for (const note of currentMelody) {
         if (noteTime < currentTime + SCHEDULE_AHEAD_TIME) {
-          playNote(note.freq, note.duration, noteTime, audioContext);
+          playNote(note.freq, note.duration, noteTime, audioContext, melodyGainRef.current!, false);
           noteTime += note.duration;
+        } else {
+          break;
+        }
+      }
+    }
+
+    // Schedule ambient pads (looping independently)
+    let ambientTime = startTime;
+    while (ambientTime < currentTime + SCHEDULE_AHEAD_TIME) {
+      for (const pad of ambientFrequencies) {
+        if (ambientTime < currentTime + SCHEDULE_AHEAD_TIME) {
+          playNote(pad.freq, pad.duration, ambientTime, audioContext, ambientGainRef.current!, true);
+          ambientTime += pad.duration;
         } else {
           break;
         }
@@ -154,6 +179,26 @@ export function AudioPlayer() {
 
     lastScheduledTimeRef.current = noteTime;
   };
+
+  // Detect which section is currently in view
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollLeft = window.scrollX;
+      const viewportWidth = window.innerWidth;
+      const sectionIndex = Math.floor(scrollLeft / viewportWidth);
+
+      const sections: Array<keyof SectionMelody> = ['landing', 'onboarding', 'archiving', 'gallery'];
+      const newSection = sections[Math.min(sectionIndex, sections.length - 1)];
+
+      if (newSection !== currentMelodyRef.current) {
+        currentMelodyRef.current = newSection;
+        setCurrentSection(newSection);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const startAudio = () => {
     try {
