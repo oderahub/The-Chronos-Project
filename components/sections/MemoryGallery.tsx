@@ -109,12 +109,13 @@ export function MemoryGallery() {
         {/* Title */}
         <div className="absolute top-16 text-center">
           <h1
-            className="text-frost font-extralight"
+            className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-pink-400 to-red-500"
             style={{
               fontSize: 'clamp(48px, 10vw, 100px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              textShadow: '0 10px 40px rgba(168, 85, 247, 0.2)',
+              filter: 'drop-shadow(0 0 20px rgba(236, 72, 153, 0.2))',
             }}
           >
             THE ARCHIVE
