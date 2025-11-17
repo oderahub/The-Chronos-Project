@@ -100,13 +100,18 @@ export function AudioPlayer() {
     }
   }, [volume]);
 
+  // Auto-play on mount
+  useEffect(() => {
+    startAudio();
+  }, []);
+
   useEffect(() => {
     return () => {
       if (isPlaying) {
         stopAudio();
       }
     };
-  }, []);
+  }, [isPlaying]);
 
   return (
     <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
