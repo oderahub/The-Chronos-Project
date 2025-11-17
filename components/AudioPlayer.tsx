@@ -3,80 +3,124 @@
 import { useState, useRef, useEffect } from 'react';
 
 export function AudioPlayer() {
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorsRef = useRef<OscillatorNode[]>([]);
+  const gainsRef = useRef<GainNode[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.3);
-  const [error, setError] = useState('');
+  const [volume, setVolume] = useState(0.1);
+  const masterGainRef = useRef<GainNode | null>(null);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-
+  const startAudio = () => {
     try {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.load();
-        const playPromise = audioRef.current.play();
+      const audioContext = audioContextRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioContext;
 
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-              setError('');
-            })
-            .catch((err) => {
-              console.error('Audio play error:', err);
-              setError('Audio unavailable');
-              setIsPlaying(false);
-            });
-        }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
       }
-    } catch (err) {
-      console.error('Error:', err);
-      setError('Audio error');
+
+      // Create master gain
+      if (!masterGainRef.current) {
+        masterGainRef.current = audioContext.createGain();
+        masterGainRef.current.connect(audioContext.destination);
+        masterGainRef.current.gain.value = volume;
+      }
+
+      // Create ambient pad with multiple oscillators
+      const frequencies = [
+        { freq: 110, type: 'sine' as OscillatorType },
+        { freq: 220, type: 'sine' as OscillatorType },
+        { freq: 220.5, type: 'sine' as OscillatorType },
+        { freq: 330, type: 'sine' as OscillatorType },
+        { freq: 330.5, type: 'sine' as OscillatorType },
+      ];
+
+      frequencies.forEach(({ freq, type }) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value = freq;
+        gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+
+        oscillator.connect(gain);
+        gain.connect(masterGainRef.current!);
+
+        oscillator.start();
+
+        oscillatorsRef.current.push(oscillator);
+        gainsRef.current.push(gain);
+
+        // Add subtle amplitude modulation
+        const lfo = audioContext.createOscillator();
+        const lfoGain = audioContext.createGain();
+
+        lfo.frequency.value = 0.5 + Math.random() * 0.5;
+        lfoGain.gain.value = 0.02;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        lfo.start();
+      });
+
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Audio context error:', error);
     }
   };
 
+  const stopAudio = () => {
+    try {
+      oscillatorsRef.current.forEach((osc) => {
+        try {
+          osc.stop();
+        } catch (e) {
+          // Already stopped
+        }
+      });
+      oscillatorsRef.current = [];
+      gainsRef.current = [];
+      setIsPlaying(false);
+    } catch (error) {
+      console.error('Error stopping audio:', error);
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      stopAudio();
+    } else {
+      startAudio();
+    }
+  };
+
+  useEffect(() => {
+    if (masterGainRef.current) {
+      masterGainRef.current.gain.value = Math.max(0, Math.min(1, volume));
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    return () => {
+      if (isPlaying) {
+        stopAudio();
+      }
+    };
+  }, []);
+
   return (
     <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
-      {/* Audio Element */}
-      <audio
-        ref={audioRef}
-        loop
-        crossOrigin="anonymous"
-        preload="auto"
-        onCanPlay={() => setError('')}
-        onError={() => setError('Audio unavailable')}
-      >
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
-        <source src="https://assets.mixkit.co/active_storage/musics/677-ethereal-ambient-106.mp3" type="audio/mpeg" />
-      </audio>
-
       {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
-        disabled={!!error}
         className={`transition-all ${
-          error
-            ? 'text-red-500/50 cursor-not-allowed'
-            : isPlaying
+          isPlaying
             ? 'text-cyan-400 drop-shadow-lg drop-shadow-cyan-500/50'
             : 'text-cyan-500/60 hover:text-cyan-400'
         }`}
-        title={error || (isPlaying ? 'Pause' : 'Play')}
+        title={isPlaying ? 'Pause' : 'Play'}
       >
-        {error ? (
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" />
-          </svg>
-        ) : isPlaying ? (
+        {isPlaying ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M5 3a2 2 0 012-2h6a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V3z" />
           </svg>
@@ -88,33 +132,26 @@ export function AudioPlayer() {
       </button>
 
       {/* Volume Slider */}
-      {isPlaying && !error && (
+      {isPlaying && (
         <>
           <input
             type="range"
             min="0"
-            max="1"
-            step="0.1"
+            max="0.3"
+            step="0.01"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
             className="w-20 h-1 bg-cyan-500/30 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${volume * 100}%, rgba(0, 212, 255, 0.2) ${volume * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
+              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
             }}
           />
 
           {/* Volume Label */}
           <span className="text-cyan-400/80 text-xs font-light whitespace-nowrap">
-            {Math.round(volume * 100)}%
+            {Math.round((volume / 0.3) * 100)}%
           </span>
         </>
-      )}
-
-      {/* Error Tooltip */}
-      {error && (
-        <span className="text-red-400/80 text-xs font-light whitespace-nowrap">
-          {error}
-        </span>
       )}
     </div>
   );
