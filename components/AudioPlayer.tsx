@@ -4,24 +4,36 @@ import { useState, useRef, useEffect } from 'react';
 
 export function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (audioRef.current && hasInteracted) {
       if (isPlaying) {
-        audioRef.current.play().catch(() => {
+        audioRef.current.play().catch((err) => {
+          console.error('Audio play error:', err);
           setIsPlaying(false);
         });
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, volume]);
+  }, [isPlaying, hasInteracted]);
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
