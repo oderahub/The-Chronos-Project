@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { LoadingAnimation } from '@/components/LoadingAnimation';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { LandingPage } from '@/components/sections/LandingPage';
@@ -10,14 +10,18 @@ import { MemoryGallery } from '@/components/sections/MemoryGallery';
 
 export default function Home() {
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isUserInteracting, setIsUserInteracting] = useState(false);
 
   useEffect(() => {
+    let checkInterval: NodeJS.Timeout;
+
     const startAutoScroll = () => {
       if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
 
       autoScrollIntervalRef.current = setInterval(() => {
-        if (!isUserInteracting) {
+        // Check if textarea is focused
+        const textareaFocused = document.activeElement?.tagName === 'TEXTAREA';
+
+        if (!textareaFocused) {
           const currentScroll = window.scrollX;
           const maxScroll = window.innerWidth * 3;
 
@@ -28,35 +32,20 @@ export default function Home() {
       }, 7000);
     };
 
-    const handleUserInteraction = () => {
-      setIsUserInteracting(true);
-      if (autoScrollIntervalRef.current) {
-        clearInterval(autoScrollIntervalRef.current);
-      }
-    };
-
-    const handleUserInactive = () => {
-      setIsUserInteracting(false);
-      startAutoScroll();
-    };
-
-    // Listen for user interaction
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.addEventListener('focus', handleUserInteraction);
-      textarea.addEventListener('blur', handleUserInactive);
-    }
-
     startAutoScroll();
+
+    // Periodically check and restart auto-scroll if needed
+    checkInterval = setInterval(() => {
+      if (!autoScrollIntervalRef.current) {
+        startAutoScroll();
+      }
+    }, 1000);
 
     return () => {
       if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
-      if (textarea) {
-        textarea.removeEventListener('focus', handleUserInteraction);
-        textarea.removeEventListener('blur', handleUserInactive);
-      }
+      if (checkInterval) clearInterval(checkInterval);
     };
-  }, [isUserInteracting]);
+  }, []);
 
   return (
     <>
