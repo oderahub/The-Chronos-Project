@@ -5,121 +5,116 @@ import { useState, useRef, useEffect } from 'react';
 export function AudioPlayer() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.1);
+  const [volume, setVolume] = useState(0.15);
   const masterGainRef = useRef<GainNode | null>(null);
-  const schedulerRef = useRef<number | null>(null);
-  const nextNoteTimeRef = useRef<number>(0);
+  const notesQueueRef = useRef<Array<{ freq: number; duration: number }>>([]);
+  const isSchedulingRef = useRef(false);
 
-  // Musical scale in Hz (C minor pentatonic)
   const melodyNotes = [
-    130.81, // C3
-    146.83, // D3
-    164.81, // E3
-    196.0,  // G3
-    220.0,  // A3
-    246.94, // B3
-    261.63, // C4
-    293.66, // D4
-    329.63, // E4
-    392.0,  // G4
-    440.0,  // A4
+    { freq: 261.63, duration: 0.5 },  // C4
+    { freq: 329.63, duration: 0.5 },  // E4
+    { freq: 392.0, duration: 0.5 },   // G4
+    { freq: 440.0, duration: 0.7 },   // A4
+    { freq: 392.0, duration: 0.5 },   // G4
+    { freq: 329.63, duration: 0.5 },  // E4
+    { freq: 261.63, duration: 0.5 },  // C4
+    { freq: 220.0, duration: 0.7 },   // A3
+    { freq: 246.94, duration: 0.5 },  // B3
+    { freq: 261.63, duration: 1.0 },  // C4
   ];
 
-  // Melodic sequence pattern
-  const melody = [
-    { note: 6, duration: 0.5 },
-    { note: 8, duration: 0.35 },
-    { note: 10, duration: 0.7 },
-    { note: 8, duration: 0.35 },
-    { note: 6, duration: 0.5 },
-    { note: 4, duration: 0.7 },
-    { note: 5, duration: 0.5 },
-    { note: 6, duration: 0.9 },
-    { note: 7, duration: 0.35 },
-    { note: 8, duration: 0.5 },
-    { note: 9, duration: 0.7 },
-    { note: 10, duration: 0.7 },
-    { note: 8, duration: 0.5 },
-    { note: 6, duration: 1.0 },
-  ];
+  const playNote = (
+    frequency: number,
+    duration: number,
+    startTime: number,
+    audioContext: AudioContext
+  ) => {
+    try {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
 
-  const playNote = (frequency: number, duration: number, audioContext: AudioContext) => {
-    const now = audioContext.currentTime;
-    const envelope = audioContext.createGain();
+      osc.frequency.value = frequency;
+      osc.type = 'sine';
 
-    const oscillator = audioContext.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, now);
+      // Connect: oscillator -> gain -> master gain -> destination
+      osc.connect(gain);
+      gain.connect(masterGainRef.current!);
 
-    // ADSR envelope
-    const attackTime = 0.05;
-    const decayTime = 0.08;
-    const sustainLevel = 0.6;
-    const releaseTime = 0.15;
-    const totalDuration = duration;
+      // Envelope (ADSR)
+      const now = startTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.05); // Attack
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.1);  // Decay
+      gain.gain.setValueAtTime(0.2, now + duration - 0.1); // Sustain
+      gain.gain.linearRampToValueAtTime(0, now + duration); // Release
 
-    envelope.gain.setValueAtTime(0, now);
-    envelope.gain.linearRampToValueAtTime(0.75, now + attackTime);
-    envelope.gain.linearRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
-    envelope.gain.setValueAtTime(sustainLevel, now + totalDuration - releaseTime);
-    envelope.gain.linearRampToValueAtTime(0, now + totalDuration);
-
-    oscillator.connect(envelope);
-    envelope.connect(masterGainRef.current!);
-
-    oscillator.start(now);
-    oscillator.stop(now + totalDuration);
+      osc.start(now);
+      osc.stop(now + duration);
+    } catch (error) {
+      console.error('Error playing note:', error);
+    }
   };
 
-  const scheduleNotes = () => {
-    const audioContext = audioContextRef.current;
-    if (!audioContext || !isPlaying) return;
+  const scheduleAllNotes = (audioContext: AudioContext) => {
+    if (isSchedulingRef.current) return;
+    isSchedulingRef.current = true;
 
-    const scheduleAheadTime = 0.1; // Schedule 100ms ahead
-    const lookAhead = 25.0; // Look ahead 25ms
+    try {
+      let currentTime = audioContext.currentTime;
 
-    while (nextNoteTimeRef.current < audioContext.currentTime + scheduleAheadTime) {
-      const noteIndex = Math.floor(nextNoteTimeRef.current * 2) % melody.length;
-      const note = melody[noteIndex];
-      const frequency = melodyNotes[note.note];
-
-      playNote(frequency, note.duration, audioContext);
-      nextNoteTimeRef.current += note.duration;
+      // Schedule melody 3 times in advance
+      for (let loop = 0; loop < 3; loop++) {
+        for (const note of melodyNotes) {
+          playNote(note.freq, note.duration, currentTime, audioContext);
+          currentTime += note.duration;
+        }
+      }
+    } catch (error) {
+      console.error('Error scheduling notes:', error);
     }
 
-    schedulerRef.current = requestAnimationFrame(scheduleNotes);
+    isSchedulingRef.current = false;
   };
 
   const startAudio = () => {
     try {
-      const audioContext = audioContextRef.current || new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioContextRef.current = audioContext;
+      console.log('Starting audio...');
 
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
+      let audioContext = audioContextRef.current;
+
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+        console.log('Created new AudioContext');
       }
 
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => console.log('Audio context resumed'));
+      }
+
+      // Create master gain if needed
       if (!masterGainRef.current) {
         masterGainRef.current = audioContext.createGain();
         masterGainRef.current.connect(audioContext.destination);
-        masterGainRef.current.gain.value = volume;
+        console.log('Created master gain');
       }
 
-      nextNoteTimeRef.current = audioContext.currentTime;
+      masterGainRef.current.gain.value = volume;
+
+      // Schedule notes
+      scheduleAllNotes(audioContext);
+      console.log('Notes scheduled');
+
       setIsPlaying(true);
-      scheduleNotes();
     } catch (error) {
-      console.error('Audio context error:', error);
+      console.error('Audio error:', error);
     }
   };
 
   const stopAudio = () => {
     try {
-      if (schedulerRef.current) {
-        cancelAnimationFrame(schedulerRef.current);
-        schedulerRef.current = null;
-      }
       setIsPlaying(false);
+      console.log('Audio stopped');
     } catch (error) {
       console.error('Error stopping audio:', error);
     }
@@ -134,23 +129,21 @@ export function AudioPlayer() {
   };
 
   useEffect(() => {
-    if (masterGainRef.current) {
-      masterGainRef.current.gain.value = Math.max(0, Math.min(0.2, volume));
+    if (masterGainRef.current && audioContextRef.current) {
+      const clampedVolume = Math.max(0, Math.min(0.3, volume));
+      masterGainRef.current.gain.value = clampedVolume;
+      console.log('Volume set to:', clampedVolume);
     }
   }, [volume]);
 
   // Auto-play on mount
   useEffect(() => {
-    startAudio();
-  }, []);
+    const timer = setTimeout(() => {
+      console.log('Auto-starting audio on mount');
+      startAudio();
+    }, 500);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (schedulerRef.current) {
-        cancelAnimationFrame(schedulerRef.current);
-      }
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -180,18 +173,18 @@ export function AudioPlayer() {
           <input
             type="range"
             min="0"
-            max="0.2"
+            max="0.3"
             step="0.01"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
             className="w-20 h-1 bg-cyan-500/30 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${(volume / 0.2) * 100}%, rgba(0, 212, 255, 0.2) ${(volume / 0.2) * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
+              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
             }}
           />
 
           <span className="text-cyan-400/80 text-xs font-light whitespace-nowrap">
-            {Math.round((volume / 0.2) * 100)}%
+            {Math.round((volume / 0.3) * 100)}%
           </span>
         </>
       )}
