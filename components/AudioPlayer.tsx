@@ -219,6 +219,19 @@ export function AudioPlayer() {
         masterGainRef.current.connect(audioContext.destination);
       }
 
+      // Create separate gain nodes for melody and ambient
+      if (!melodyGainRef.current) {
+        melodyGainRef.current = audioContext.createGain();
+        melodyGainRef.current.connect(masterGainRef.current);
+        melodyGainRef.current.gain.value = 0.4; // Melody level
+      }
+
+      if (!ambientGainRef.current) {
+        ambientGainRef.current = audioContext.createGain();
+        ambientGainRef.current.connect(masterGainRef.current);
+        ambientGainRef.current.gain.value = 0.25; // Ambient level (quieter)
+      }
+
       masterGainRef.current.gain.value = volume;
 
       // Reset scheduling
