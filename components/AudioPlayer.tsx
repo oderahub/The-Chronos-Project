@@ -7,8 +7,9 @@ export function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.15);
   const masterGainRef = useRef<GainNode | null>(null);
-  const notesQueueRef = useRef<Array<{ freq: number; duration: number }>>([]);
-  const isSchedulingRef = useRef(false);
+  const activeOscillatorsRef = useRef<Array<OscillatorNode>>([]);
+  const schedulerRafRef = useRef<number | null>(null);
+  const lastScheduledTimeRef = useRef<number>(0);
 
   const melodyNotes = [
     { freq: 261.63, duration: 0.5 },  // C4
@@ -22,6 +23,10 @@ export function AudioPlayer() {
     { freq: 246.94, duration: 0.5 },  // B3
     { freq: 261.63, duration: 1.0 },  // C4
   ];
+
+  const getTotalMelodyDuration = () => {
+    return melodyNotes.reduce((sum, note) => sum + note.duration, 0);
+  };
 
   const playNote = (
     frequency: number,
@@ -50,61 +55,74 @@ export function AudioPlayer() {
 
       osc.start(now);
       osc.stop(now + duration);
+
+      activeOscillatorsRef.current.push(osc);
     } catch (error) {
       console.error('Error playing note:', error);
     }
   };
 
-  const scheduleAllNotes = (audioContext: AudioContext) => {
-    if (isSchedulingRef.current) return;
-    isSchedulingRef.current = true;
+  const scheduleNotesAhead = (audioContext: AudioContext) => {
+    const SCHEDULE_AHEAD_TIME = 0.5; // Schedule 500ms ahead
+    const currentTime = audioContext.currentTime;
+    let startTime = lastScheduledTimeRef.current;
 
-    try {
-      let currentTime = audioContext.currentTime;
-
-      // Schedule melody 3 times in advance
-      for (let loop = 0; loop < 3; loop++) {
-        for (const note of melodyNotes) {
-          playNote(note.freq, note.duration, currentTime, audioContext);
-          currentTime += note.duration;
-        }
-      }
-    } catch (error) {
-      console.error('Error scheduling notes:', error);
+    if (startTime < currentTime) {
+      startTime = currentTime + 0.01; // Start slightly in the future
     }
 
-    isSchedulingRef.current = false;
+    const melodyDuration = getTotalMelodyDuration();
+    let noteTime = startTime;
+
+    // Schedule notes while we're within the lookahead window
+    while (noteTime < currentTime + SCHEDULE_AHEAD_TIME) {
+      for (const note of melodyNotes) {
+        if (noteTime < currentTime + SCHEDULE_AHEAD_TIME) {
+          playNote(note.freq, note.duration, noteTime, audioContext);
+          noteTime += note.duration;
+        } else {
+          break;
+        }
+      }
+    }
+
+    lastScheduledTimeRef.current = noteTime;
   };
 
   const startAudio = () => {
     try {
-      console.log('Starting audio...');
-
       let audioContext = audioContextRef.current;
 
       if (!audioContext) {
         audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         audioContextRef.current = audioContext;
-        console.log('Created new AudioContext');
       }
 
       if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => console.log('Audio context resumed'));
+        audioContext.resume();
       }
 
       // Create master gain if needed
       if (!masterGainRef.current) {
         masterGainRef.current = audioContext.createGain();
         masterGainRef.current.connect(audioContext.destination);
-        console.log('Created master gain');
       }
 
       masterGainRef.current.gain.value = volume;
 
-      // Schedule notes
-      scheduleAllNotes(audioContext);
-      console.log('Notes scheduled');
+      // Reset scheduling
+      lastScheduledTimeRef.current = audioContext.currentTime;
+      activeOscillatorsRef.current = [];
 
+      // Start the scheduler
+      const scheduler = () => {
+        if (audioContextRef.current) {
+          scheduleNotesAhead(audioContextRef.current);
+          schedulerRafRef.current = requestAnimationFrame(scheduler);
+        }
+      };
+
+      schedulerRafRef.current = requestAnimationFrame(scheduler);
       setIsPlaying(true);
     } catch (error) {
       console.error('Audio error:', error);
@@ -113,8 +131,23 @@ export function AudioPlayer() {
 
   const stopAudio = () => {
     try {
+      // Cancel the scheduler
+      if (schedulerRafRef.current) {
+        cancelAnimationFrame(schedulerRafRef.current);
+        schedulerRafRef.current = null;
+      }
+
+      // Stop all active oscillators
+      activeOscillatorsRef.current.forEach(osc => {
+        try {
+          osc.stop(0);
+        } catch (e) {
+          // Oscillator might already be stopped
+        }
+      });
+      activeOscillatorsRef.current = [];
+
       setIsPlaying(false);
-      console.log('Audio stopped');
     } catch (error) {
       console.error('Error stopping audio:', error);
     }
@@ -132,18 +165,19 @@ export function AudioPlayer() {
     if (masterGainRef.current && audioContextRef.current) {
       const clampedVolume = Math.max(0, Math.min(0.3, volume));
       masterGainRef.current.gain.value = clampedVolume;
-      console.log('Volume set to:', clampedVolume);
     }
   }, [volume]);
 
   // Auto-play on mount
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log('Auto-starting audio on mount');
       startAudio();
     }, 500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      stopAudio();
+    };
   }, []);
 
   return (
