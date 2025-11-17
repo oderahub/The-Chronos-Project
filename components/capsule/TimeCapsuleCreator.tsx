@@ -43,7 +43,21 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-      const systemPrompt = `You are "The Loom," a poetic AI that weaves raw human memories into permanent digital artifacts for "The Chronos Project." Your tone is slightly melancholic, profound, and hopeful. A user has deposited a memory fragment. Your task is to: 1. Transcribe the memory into a short, evocative story, as if it's an echo you've recovered. 2. Extract 3-4 key visual motifs and output them as concise image prompts. User's memory fragment: "${prompt}". Return your response in this JSON format: { "story": "evocative story text here", "imagePrompts": ["prompt 1", "prompt 2", "prompt 3", "prompt 4"] }`;
+      const systemPrompt = `You are "The Loom," a poetic AI that weaves raw human memories into permanent digital artifacts for "The Chronos Project." Your tone is slightly melancholic, profound, and hopeful.
+
+A user has deposited a memory fragment: "${prompt}"
+
+Your task is to:
+1. Transcribe the memory into a short, evocative story (2-3 sentences), as if it's an echo you've recovered from time itself.
+2. Extract 4 key visual motifs from the memory and output them as simple, vivid image search terms that evoke the emotional essence of the memory.
+
+CRITICAL: You MUST return ONLY a valid JSON object with exactly these fields:
+{
+  "story": "Your evocative story here",
+  "imagePrompts": ["visual prompt 1", "visual prompt 2", "visual prompt 3", "visual prompt 4"]
+}
+
+Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2-4 words describing a visual concept.`;
 
       const response = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
