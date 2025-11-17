@@ -4,15 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 
 export function AudioPlayer() {
   const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorsRef = useRef<OscillatorNode[]>([]);
-  const gainsRef = useRef<GainNode[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.08);
+  const [volume, setVolume] = useState(0.1);
   const masterGainRef = useRef<GainNode | null>(null);
-  const currentNoteRef = useRef<number>(0);
-  const noteSchedulerRef = useRef<NodeJS.Timeout | null>(null);
+  const schedulerRef = useRef<number | null>(null);
+  const nextNoteTimeRef = useRef<number>(0);
 
-  // Musical scale in Hz (C minor pentatonic - creates a haunting, emotional melody)
+  // Musical scale in Hz (C minor pentatonic)
   const melodyNotes = [
     130.81, // C3
     146.83, // D3
@@ -29,79 +27,67 @@ export function AudioPlayer() {
 
   // Melodic sequence pattern
   const melody = [
-    { note: 6, duration: 0.6 },   // C4
-    { note: 8, duration: 0.4 },   // E4
-    { note: 10, duration: 0.8 },  // A4
-    { note: 8, duration: 0.4 },   // E4
-    { note: 6, duration: 0.6 },   // C4
-    { note: 4, duration: 0.8 },   // A3
-    { note: 5, duration: 0.6 },   // B3
-    { note: 6, duration: 1.0 },   // C4
-    { note: 7, duration: 0.4 },   // D4
-    { note: 8, duration: 0.6 },   // E4
-    { note: 9, duration: 0.8 },   // G4
-    { note: 10, duration: 0.8 },  // A4
-    { note: 8, duration: 0.6 },   // E4
-    { note: 6, duration: 1.2 },   // C4 (longer note)
+    { note: 6, duration: 0.5 },
+    { note: 8, duration: 0.35 },
+    { note: 10, duration: 0.7 },
+    { note: 8, duration: 0.35 },
+    { note: 6, duration: 0.5 },
+    { note: 4, duration: 0.7 },
+    { note: 5, duration: 0.5 },
+    { note: 6, duration: 0.9 },
+    { note: 7, duration: 0.35 },
+    { note: 8, duration: 0.5 },
+    { note: 9, duration: 0.7 },
+    { note: 10, duration: 0.7 },
+    { note: 8, duration: 0.5 },
+    { note: 6, duration: 1.0 },
   ];
 
-  const playNote = (frequency: number, duration: number) => {
-    const audioContext = audioContextRef.current;
-    if (!audioContext) return;
-
+  const playNote = (frequency: number, duration: number, audioContext: AudioContext) => {
     const now = audioContext.currentTime;
     const envelope = audioContext.createGain();
 
     const oscillator = audioContext.createOscillator();
     oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
+    oscillator.frequency.setValueAtTime(frequency, now);
 
-    // ADSR envelope for more musical sound
+    // ADSR envelope
     const attackTime = 0.05;
-    const decayTime = 0.1;
+    const decayTime = 0.08;
     const sustainLevel = 0.6;
-    const releaseTime = 0.2;
+    const releaseTime = 0.15;
+    const totalDuration = duration;
 
-    // Attack
     envelope.gain.setValueAtTime(0, now);
-    envelope.gain.linearRampToValueAtTime(0.7, now + attackTime);
-
-    // Decay to sustain
+    envelope.gain.linearRampToValueAtTime(0.75, now + attackTime);
     envelope.gain.linearRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
-
-    // Sustain (held at sustainLevel)
-    envelope.gain.setValueAtTime(sustainLevel, now + duration - releaseTime);
-
-    // Release
-    envelope.gain.linearRampToValueAtTime(0, now + duration);
+    envelope.gain.setValueAtTime(sustainLevel, now + totalDuration - releaseTime);
+    envelope.gain.linearRampToValueAtTime(0, now + totalDuration);
 
     oscillator.connect(envelope);
     envelope.connect(masterGainRef.current!);
 
     oscillator.start(now);
-    oscillator.stop(now + duration);
-
-    oscillatorsRef.current.push(oscillator);
-    gainsRef.current.push(envelope);
+    oscillator.stop(now + totalDuration);
   };
 
-  const playMelody = () => {
-    if (!isPlaying) return;
-
+  const scheduleNotes = () => {
     const audioContext = audioContextRef.current;
-    if (!audioContext) return;
+    if (!audioContext || !isPlaying) return;
 
-    const melodyStep = melody[currentNoteRef.current % melody.length];
-    const frequency = melodyNotes[melodyStep.note];
+    const scheduleAheadTime = 0.1; // Schedule 100ms ahead
+    const lookAhead = 25.0; // Look ahead 25ms
 
-    playNote(frequency, melodyStep.duration);
+    while (nextNoteTimeRef.current < audioContext.currentTime + scheduleAheadTime) {
+      const noteIndex = Math.floor(nextNoteTimeRef.current * 2) % melody.length;
+      const note = melody[noteIndex];
+      const frequency = melodyNotes[note.note];
 
-    // Schedule next note
-    const nextDelay = melodyStep.duration * 1000;
-    noteSchedulerRef.current = setTimeout(() => {
-      currentNoteRef.current += 1;
-      playMelody();
-    }, nextDelay);
+      playNote(frequency, note.duration, audioContext);
+      nextNoteTimeRef.current += note.duration;
+    }
+
+    schedulerRef.current = requestAnimationFrame(scheduleNotes);
   };
 
   const startAudio = () => {
@@ -113,16 +99,15 @@ export function AudioPlayer() {
         audioContext.resume();
       }
 
-      // Create master gain
       if (!masterGainRef.current) {
         masterGainRef.current = audioContext.createGain();
         masterGainRef.current.connect(audioContext.destination);
         masterGainRef.current.gain.value = volume;
       }
 
+      nextNoteTimeRef.current = audioContext.currentTime;
       setIsPlaying(true);
-      currentNoteRef.current = 0;
-      playMelody();
+      scheduleNotes();
     } catch (error) {
       console.error('Audio context error:', error);
     }
@@ -130,22 +115,11 @@ export function AudioPlayer() {
 
   const stopAudio = () => {
     try {
-      if (noteSchedulerRef.current) {
-        clearTimeout(noteSchedulerRef.current);
-        noteSchedulerRef.current = null;
+      if (schedulerRef.current) {
+        cancelAnimationFrame(schedulerRef.current);
+        schedulerRef.current = null;
       }
-
-      oscillatorsRef.current.forEach((osc) => {
-        try {
-          osc.stop();
-        } catch (e) {
-          // Already stopped
-        }
-      });
-      oscillatorsRef.current = [];
-      gainsRef.current = [];
       setIsPlaying(false);
-      currentNoteRef.current = 0;
     } catch (error) {
       console.error('Error stopping audio:', error);
     }
@@ -161,7 +135,7 @@ export function AudioPlayer() {
 
   useEffect(() => {
     if (masterGainRef.current) {
-      masterGainRef.current.gain.value = Math.max(0, Math.min(1, volume));
+      masterGainRef.current.gain.value = Math.max(0, Math.min(0.2, volume));
     }
   }, [volume]);
 
@@ -170,17 +144,17 @@ export function AudioPlayer() {
     startAudio();
   }, []);
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (isPlaying) {
-        stopAudio();
+      if (schedulerRef.current) {
+        cancelAnimationFrame(schedulerRef.current);
       }
     };
-  }, [isPlaying]);
+  }, []);
 
   return (
     <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
-      {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
         className={`transition-all ${
@@ -201,7 +175,6 @@ export function AudioPlayer() {
         )}
       </button>
 
-      {/* Volume Slider */}
       {isPlaying && (
         <>
           <input
@@ -217,7 +190,6 @@ export function AudioPlayer() {
             }}
           />
 
-          {/* Volume Label */}
           <span className="text-cyan-400/80 text-xs font-light whitespace-nowrap">
             {Math.round((volume / 0.2) * 100)}%
           </span>
