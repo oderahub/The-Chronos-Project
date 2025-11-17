@@ -100,7 +100,7 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Your memory..."
-            className="w-full h-24 p-4 bg-white/5 border border-pulse/20 rounded-lg text-frost/90 placeholder-ash/50 focus:outline-none focus:border-pulse/40 transition-colors text-sm font-light resize-none"
+            className="w-full h-24 p-4 bg-white/5 border border-emerald-500/30 rounded-lg text-frost/90 placeholder-ash/50 focus:outline-none focus:border-emerald-500/60 transition-colors text-sm font-light resize-none"
             disabled={isLoading}
           />
 
@@ -111,7 +111,7 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full px-6 py-3 bg-pulse text-frost type-body font-light rounded-lg disabled:opacity-50 transition-opacity text-sm"
+            className="w-full px-6 py-3 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 border border-emerald-500/50 text-emerald-300 type-body font-light rounded-lg disabled:opacity-50 hover:from-emerald-500/50 hover:to-teal-500/50 hover:border-emerald-500 transition-all text-sm"
           >
             {isLoading ? 'WEAVING...' : 'WEAVE STORY →'}
           </button>
