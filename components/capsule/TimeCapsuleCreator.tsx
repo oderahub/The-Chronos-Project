@@ -70,9 +70,15 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
       const responseText = response.response.text();
       const data = JSON.parse(responseText);
 
-      setStory(data.story);
-      setImagePrompts(data.imagePrompts);
-      onCapsuleCreated(data);
+      // Ensure we have valid data
+      const storyText = data.story || 'Memory fragment captured';
+      const imagePrpts = Array.isArray(data.imagePrompts)
+        ? data.imagePrompts
+        : ['abstract memory', 'consciousness', 'fragments', 'digital dreams'];
+
+      setStory(storyText);
+      setImagePrompts(imagePrpts);
+      onCapsuleCreated({ story: storyText, imagePrompts: imagePrpts });
 
       setTimeout(() => {
         window.scrollTo({ left: window.innerWidth * 3, behavior: 'smooth' });
