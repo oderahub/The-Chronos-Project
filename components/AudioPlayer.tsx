@@ -2,26 +2,92 @@
 
 import { useState, useRef, useEffect } from 'react';
 
+interface MelodyNote {
+  freq: number;
+  duration: number;
+}
+
+interface SectionMelody {
+  landing: MelodyNote[];
+  onboarding: MelodyNote[];
+  archiving: MelodyNote[];
+  gallery: MelodyNote[];
+}
+
 export function AudioPlayer() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.15);
+  const [volume, setVolume] = useState(0.12);
+  const [currentSection, setCurrentSection] = useState<keyof SectionMelody>('landing');
   const masterGainRef = useRef<GainNode | null>(null);
+  const ambientGainRef = useRef<GainNode | null>(null);
+  const melodyGainRef = useRef<GainNode | null>(null);
   const activeOscillatorsRef = useRef<Array<OscillatorNode>>([]);
   const schedulerRafRef = useRef<number | null>(null);
   const lastScheduledTimeRef = useRef<number>(0);
+  const currentMelodyRef = useRef<keyof SectionMelody>('landing');
 
-  const melodyNotes = [
-    { freq: 261.63, duration: 0.5 },  // C4
-    { freq: 329.63, duration: 0.5 },  // E4
-    { freq: 392.0, duration: 0.5 },   // G4
-    { freq: 440.0, duration: 0.7 },   // A4
-    { freq: 392.0, duration: 0.5 },   // G4
-    { freq: 329.63, duration: 0.5 },  // E4
-    { freq: 261.63, duration: 0.5 },  // C4
-    { freq: 220.0, duration: 0.7 },   // A3
-    { freq: 246.94, duration: 0.5 },  // B3
-    { freq: 261.63, duration: 1.0 },  // C4
+  // Ethereal/cinematic melodies for each section
+  const sectionMelodies: SectionMelody = {
+    landing: [
+      // Dreamy ascending progression - C minor scale
+      { freq: 130.81, duration: 1.0 },  // C3
+      { freq: 155.56, duration: 0.8 },  // D#3
+      { freq: 174.61, duration: 0.8 },  // F3
+      { freq: 196.0, duration: 1.0 },   // G3
+      { freq: 174.61, duration: 0.8 },  // F3
+      { freq: 155.56, duration: 0.8 },  // D#3
+      { freq: 130.81, duration: 1.2 },  // C3
+      { freq: 196.0, duration: 0.6 },   // G3
+      { freq: 220.0, duration: 0.6 },   // A3
+      { freq: 246.94, duration: 1.4 },  // B3
+    ],
+    onboarding: [
+      // Ascending ethereal melody - A minor
+      { freq: 220.0, duration: 0.6 },   // A3
+      { freq: 246.94, duration: 0.6 },  // B3
+      { freq: 261.63, duration: 0.6 },  // C4
+      { freq: 293.66, duration: 0.8 },  // D4
+      { freq: 329.63, duration: 1.0 },  // E4
+      { freq: 293.66, duration: 0.6 },  // D4
+      { freq: 261.63, duration: 0.6 },  // C4
+      { freq: 246.94, duration: 0.8 },  // B3
+      { freq: 220.0, duration: 1.2 },   // A3
+      { freq: 261.63, duration: 0.8 },  // C4
+    ],
+    archiving: [
+      // Contemplative progression - F major
+      { freq: 174.61, duration: 0.8 },  // F3
+      { freq: 196.0, duration: 0.8 },   // G3
+      { freq: 220.0, duration: 0.7 },   // A3
+      { freq: 246.94, duration: 0.9 },  // B3
+      { freq: 261.63, duration: 1.1 },  // C4
+      { freq: 246.94, duration: 0.7 },  // B3
+      { freq: 220.0, duration: 0.8 },   // A3
+      { freq: 196.0, duration: 1.0 },   // G3
+      { freq: 174.61, duration: 1.2 },  // F3
+      { freq: 220.0, duration: 0.8 },   // A3
+    ],
+    gallery: [
+      // Cascading ethereal melody - G major
+      { freq: 196.0, duration: 0.5 },   // G3
+      { freq: 220.0, duration: 0.5 },   // A3
+      { freq: 246.94, duration: 0.5 },  // B3
+      { freq: 261.63, duration: 0.6 },  // C4
+      { freq: 293.66, duration: 0.6 },  // D4
+      { freq: 329.63, duration: 0.8 },  // E4
+      { freq: 349.23, duration: 1.0 },  // F4
+      { freq: 329.63, duration: 0.6 },  // E4
+      { freq: 293.66, duration: 0.6 },  // D4
+      { freq: 261.63, duration: 0.8 },  // C4
+    ],
+  };
+
+  // Ambient pad frequencies for ethereal background
+  const ambientFrequencies = [
+    { freq: 87.31, duration: 4.0 },   // F2 bass pad
+    { freq: 130.81, duration: 3.5 },  // C3 pad
+    { freq: 196.0, duration: 3.0 },   // G3 pad
   ];
 
   const getTotalMelodyDuration = () => {
