@@ -37,12 +37,13 @@ export function AudioPlayer() {
   };
 
   return (
-    <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-pulse/30 rounded-full px-6 py-3">
+    <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
       {/* Audio Element */}
       <audio
         ref={audioRef}
         loop
         crossOrigin="anonymous"
+        preload="auto"
       >
         <source src="https://assets.mixkit.co/active_storage/musics/677-ethereal-ambient-106.mp3" type="audio/mpeg" />
       </audio>
@@ -50,7 +51,11 @@ export function AudioPlayer() {
       {/* Play/Pause Button */}
       <button
         onClick={togglePlayPause}
-        className="text-pulse hover:text-pulse/80 transition-colors"
+        className={`transition-all ${
+          isPlaying
+            ? 'text-cyan-400 drop-shadow-lg drop-shadow-cyan-500/50'
+            : 'text-cyan-500/60 hover:text-cyan-400'
+        }`}
         title={isPlaying ? 'Pause' : 'Play'}
       >
         {isPlaying ? (
@@ -65,23 +70,27 @@ export function AudioPlayer() {
       </button>
 
       {/* Volume Slider */}
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.1"
-        value={volume}
-        onChange={(e) => setVolume(parseFloat(e.target.value))}
-        className="w-20 h-1 bg-pulse/30 rounded-full appearance-none cursor-pointer"
-        style={{
-          background: `linear-gradient(to right, #007AFF 0%, #007AFF ${volume * 100}%, rgba(0, 122, 255, 0.2) ${volume * 100}%, rgba(0, 122, 255, 0.2) 100%)`,
-        }}
-      />
+      {isPlaying && (
+        <>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            className="w-20 h-1 bg-cyan-500/30 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${volume * 100}%, rgba(0, 212, 255, 0.2) ${volume * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
+            }}
+          />
 
-      {/* Volume Label */}
-      <span className="text-pulse/60 text-xs font-light whitespace-nowrap">
-        {Math.round(volume * 100)}%
-      </span>
+          {/* Volume Label */}
+          <span className="text-cyan-400/80 text-xs font-light whitespace-nowrap">
+            {Math.round(volume * 100)}%
+          </span>
+        </>
+      )}
     </div>
   );
 }
