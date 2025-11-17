@@ -147,12 +147,19 @@ Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2
             <h3 className="type-micro text-pulse/60 tracking-widest mb-4">IMAGES</h3>
             <div className="grid grid-cols-2 gap-3">
               {imagePrompts.map((imagePrompt, idx) => (
-                <img
+                <div
                   key={idx}
-                  src={`https://source.unsplash.com/random/400x400/?${encodeURIComponent(imagePrompt)}`}
-                  alt={imagePrompt}
-                  className="w-full h-32 object-cover rounded-lg opacity-70"
-                />
+                  className="w-full h-32 rounded-lg overflow-hidden bg-white/5 border border-emerald-500/20 flex items-center justify-center"
+                >
+                  <img
+                    src={`https://source.unsplash.com/random/400x400/?${encodeURIComponent(imagePrompt)}`}
+                    alt={imagePrompt}
+                    className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://picsum.photos/400/400?random=${idx}`;
+                    }}
+                  />
+                </div>
               ))}
             </div>
           </div>
