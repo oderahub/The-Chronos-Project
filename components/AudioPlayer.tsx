@@ -287,7 +287,7 @@ export function AudioPlayer() {
 
   useEffect(() => {
     if (masterGainRef.current && audioContextRef.current) {
-      const clampedVolume = Math.max(0, Math.min(0.3, volume));
+      const clampedVolume = Math.max(0, Math.min(0.25, volume));
       masterGainRef.current.gain.value = clampedVolume;
     }
   }, [volume]);
@@ -305,10 +305,10 @@ export function AudioPlayer() {
   }, []);
 
   return (
-    <div className="fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
+    <div className="audio-player-container fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
       <button
         onClick={togglePlayPause}
-        className={`transition-all ${
+        className={`audio-player-toggle transition-all ${
           isPlaying
             ? 'text-cyan-400 drop-shadow-lg drop-shadow-cyan-500/50'
             : 'text-cyan-500/60 hover:text-cyan-400'
@@ -331,18 +331,18 @@ export function AudioPlayer() {
           <input
             type="range"
             min="0"
-            max="0.3"
+            max="0.25"
             step="0.01"
             value={volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="w-20 h-1 bg-cyan-500/30 rounded-full appearance-none cursor-pointer"
+            className="audio-player-volume-slider w-20 h-1 bg-cyan-500/30 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) ${(volume / 0.3) * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
+              background: `linear-gradient(to right, #00D4FF 0%, #00D4FF ${(volume / 0.25) * 100}%, rgba(0, 212, 255, 0.2) ${(volume / 0.25) * 100}%, rgba(0, 212, 255, 0.2) 100%)`,
             }}
           />
 
-          <span className="text-cyan-400/80 text-xs font-light whitespace-nowrap">
-            {Math.round((volume / 0.3) * 100)}%
+          <span className="audio-player-percentage text-cyan-400/80 text-xs font-light whitespace-nowrap">
+            {Math.round((volume / 0.25) * 100)}%
           </span>
         </>
       )}
