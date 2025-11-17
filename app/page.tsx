@@ -10,18 +10,40 @@ import { MemoryGallery } from '@/components/sections/MemoryGallery';
 
 export default function Home() {
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastInteractionRef = useRef<number>(Date.now());
+  const isActiveRef = useRef<boolean>(false);
 
   useEffect(() => {
-    let checkInterval: NodeJS.Timeout;
+    const INACTIVITY_TIME = 2 * 60 * 1000; // 2 minutes in milliseconds
+    const AUTO_SCROLL_INTERVAL = 7000; // 7 seconds
+
+    const handleUserInteraction = () => {
+      lastInteractionRef.current = Date.now();
+      isActiveRef.current = true;
+
+      // Clear existing inactivity timer
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+
+      // Set new inactivity timer
+      inactivityTimerRef.current = setTimeout(() => {
+        isActiveRef.current = false;
+      }, INACTIVITY_TIME);
+
+      // Stop auto-scroll while user is active
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+        autoScrollIntervalRef.current = null;
+      }
+    };
 
     const startAutoScroll = () => {
       if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
 
       autoScrollIntervalRef.current = setInterval(() => {
-        // Check if textarea is focused
-        const textareaFocused = document.activeElement?.tagName === 'TEXTAREA';
-
-        if (!textareaFocused) {
+        if (!isActiveRef.current) {
           const currentScroll = window.scrollX;
           const maxScroll = window.innerWidth * 3;
 
@@ -29,21 +51,26 @@ export default function Home() {
             window.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
           }
         }
-      }, 7000);
+      }, AUTO_SCROLL_INTERVAL);
     };
 
+    // Start auto-scroll initially
     startAutoScroll();
 
-    // Periodically check and restart auto-scroll if needed
-    checkInterval = setInterval(() => {
-      if (!autoScrollIntervalRef.current) {
-        startAutoScroll();
-      }
-    }, 1000);
+    // Add interaction listeners
+    const interactionEvents = ['mousemove', 'keydown', 'click', 'touchstart', 'touchmove', 'wheel'];
+
+    interactionEvents.forEach((event) => {
+      window.addEventListener(event, handleUserInteraction);
+    });
 
     return () => {
       if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
-      if (checkInterval) clearInterval(checkInterval);
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+
+      interactionEvents.forEach((event) => {
+        window.removeEventListener(event, handleUserInteraction);
+      });
     };
   }, []);
 
