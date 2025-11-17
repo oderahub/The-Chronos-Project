@@ -171,7 +171,7 @@ export function MemoryGallery() {
             {/* Prev Button */}
             <button
               onClick={handlePrev}
-              className="w-12 h-12 rounded-full border border-pulse/50 text-pulse flex items-center justify-center hover:bg-pulse/10 transition-all"
+              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center hover:bg-violet-500/10 hover:border-violet-400 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -186,8 +186,8 @@ export function MemoryGallery() {
                   onClick={() => handleDotClick(idx)}
                   className={`h-2 rounded-full transition-all ${
                     idx === currentIndex
-                      ? 'bg-pulse w-8'
-                      : 'bg-pulse/30 w-2 hover:bg-pulse/50'
+                      ? 'bg-gradient-to-r from-violet-500 to-pink-500 w-8'
+                      : 'bg-violet-500/30 w-2 hover:bg-violet-500/50'
                   }`}
                 />
               ))}
@@ -196,7 +196,7 @@ export function MemoryGallery() {
             {/* Next Button */}
             <button
               onClick={handleNext}
-              className="w-12 h-12 rounded-full border border-pulse/50 text-pulse flex items-center justify-center hover:bg-pulse/10 transition-all"
+              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center hover:bg-violet-500/10 hover:border-violet-400 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -206,7 +206,7 @@ export function MemoryGallery() {
 
           {/* Counter */}
           <div className="text-center mt-8">
-            <p className="type-micro text-pulse/60 tracking-widest">
+            <p className="type-micro text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400 tracking-widest font-semibold">
               {currentIndex + 1} / {allItems.length}
             </p>
           </div>
