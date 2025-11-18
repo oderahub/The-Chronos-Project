@@ -23,7 +23,7 @@ export function ArchivingChamber() {
     addCapsule(capsule);
   };
 
-  const parallaxOffset = (scrollY - window.innerWidth * 2) * 0.5;
+  const parallaxOffset = typeof window !== 'undefined' ? (scrollY - window.innerWidth * 2) * 0.5 : 0;
 
   return (
     <section ref={sectionRef} className="archiving-section w-screen h-screen flex relative overflow-hidden bg-void">
