@@ -89,6 +89,8 @@ function NavigationBar() {
 
 export function LandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -101,29 +103,48 @@ export function LandingPage() {
       });
     };
 
+    const handleScroll = () => {
+      setScrollY(window.scrollX);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const handleBeginArchiving = () => {
     window.scrollTo({ left: window.innerWidth, behavior: 'smooth' });
   };
 
-  return (
-    <section className="w-screen h-screen relative overflow-hidden bg-void">
-      {/* Video Background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-40"
-      >
-        <source src="https://videos.pexels.com/video-files/7578535/7578535-hd_1920_1080_25fps.mp4" type="video/mp4" />
-      </video>
+  const parallaxOffset = scrollY * 0.5;
 
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+  return (
+    <section ref={sectionRef} className="landing-section w-screen h-screen relative overflow-hidden bg-void">
+      {/* Video Background with Parallax */}
+      <div
+        className="absolute inset-0 w-full h-full"
+        style={{
+          transform: `translateX(${parallaxOffset}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
+      >
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-35"
+        >
+          <source src="https://videos.pexels.com/video-files/2297636/2297636-hd_1280_720_30fps.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      {/* Gradient Overlays - Layered for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-950/30 via-transparent to-blue-950/30" />
 
       {/* AR Corner Brackets */}
       <ARCornerBracket position="top-left" />
@@ -134,38 +155,83 @@ export function LandingPage() {
       {/* Navigation */}
       <NavigationBar />
 
-      {/* Hero Text - Center */}
+      {/* Hero Text - Center with animations */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
-        <div
-          className="text-center transition-transform duration-150 ease-out"
+        <motion.div
+          className="text-center"
           style={{
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
           }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <h1
+          <motion.h1
             className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500"
             style={{
               fontSize: 'clamp(60px, 14vw, 200px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(0, 122, 255, 0.3)',
+              textShadow: '0 10px 40px rgba(0, 122, 255, 0.3), 0 0 30px rgba(0, 212, 255, 0.15)',
               filter: 'drop-shadow(0 0 20px rgba(0, 212, 255, 0.2))',
             }}
+            animate={{
+              textShadow: [
+                '0 10px 40px rgba(0, 122, 255, 0.3), 0 0 30px rgba(0, 212, 255, 0.15)',
+                '0 10px 40px rgba(0, 122, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.25)',
+                '0 10px 40px rgba(0, 122, 255, 0.3), 0 0 30px rgba(0, 212, 255, 0.15)',
+              ],
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
           >
             FRAGMENTED<br />REALITY
-          </h1>
-        </div>
+          </motion.h1>
+
+          <motion.p
+            className="mt-8 text-cyan-200/60 type-body font-light max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            Where fragmented moments crystallize into permanent digital artifacts
+          </motion.p>
+        </motion.div>
       </div>
 
-      {/* Bottom CTA - Vibrant */}
-      <div className="absolute bottom-12 right-12">
-        <button
+      {/* Bottom CTA - Enhanced glass morphism */}
+      <motion.div
+        className="absolute bottom-12 right-12 z-20"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+      >
+        <motion.button
           onClick={handleBeginArchiving}
-          className="px-8 py-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body font-light hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
+          className="px-8 py-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body font-light backdrop-blur-md hover:border-cyan-300 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/30 transition-all rounded-lg"
+          whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 212, 255, 0.1)' }}
+          whileTap={{ scale: 0.95 }}
         >
           BEGIN ARCHIVING →
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
+
+      {/* Floating accent elements */}
+      <motion.div
+        className="absolute top-1/4 right-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl"
+        animate={{
+          x: [0, 30, -30, 0],
+          y: [0, -30, 30, 0],
+        }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"
+        animate={{
+          x: [0, -30, 30, 0],
+          y: [0, 30, -30, 0],
+        }}
+        transition={{ duration: 10, repeat: Infinity }}
+      />
     </section>
   );
 }
