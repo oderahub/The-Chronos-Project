@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 
 function ARCornerBracket({ position }: { position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }) {
   const positionClasses = {
@@ -18,9 +19,14 @@ function ARCornerBracket({ position }: { position: 'top-left' | 'top-right' | 'b
   };
 
   return (
-    <div className={`absolute ${positionClasses[position]} w-10 h-10 opacity-40`}>
-      <div className={`w-full h-full border-2 border-pulse/50 ${rotationClasses[position]}`} />
-    </div>
+    <motion.div
+      className={`absolute ${positionClasses[position]} w-10 h-10 opacity-30`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 0.4 }}
+      transition={{ delay: 0.3, duration: 0.6 }}
+    >
+      <div className={`w-full h-full border-2 border-cyan-400/50 ${rotationClasses[position]} hover:border-cyan-300 transition-colors`} />
+    </motion.div>
   );
 }
 
