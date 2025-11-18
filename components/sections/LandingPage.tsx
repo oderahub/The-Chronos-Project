@@ -200,14 +200,14 @@ export function LandingPage() {
       <div
         className="absolute bottom-12 right-12 z-20"
       >
-        <button
+        <motion.button
           onClick={handleBeginArchiving}
           className="px-8 py-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body font-light backdrop-blur-md hover:border-cyan-300 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/30 transition-all rounded-lg"
           whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 212, 255, 0.1)' }}
           whileTap={{ scale: 0.95 }}
         >
           BEGIN ARCHIVING →
-        </button>
+        </motion.button>
       </div>
 
       {/* Floating accent elements */}
