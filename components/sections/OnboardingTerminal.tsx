@@ -35,7 +35,7 @@ export function OnboardingTerminal() {
     window.scrollTo({ left: window.innerWidth * 2, behavior: 'smooth' });
   };
 
-  const parallaxOffset = (scrollY - window.innerWidth) * 0.5;
+  const parallaxOffset = typeof window !== 'undefined' ? (scrollY - window.innerWidth) * 0.5 : 0;
 
   return (
     <section ref={sectionRef} className="onboarding-section w-screen h-screen relative overflow-hidden bg-void flex flex-col items-center justify-center">
