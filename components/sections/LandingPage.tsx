@@ -164,7 +164,7 @@ export function LandingPage() {
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
           }}
         >
-          <h1
+          <motion.h1
             className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500"
             style={{
               fontSize: 'clamp(60px, 14vw, 200px)',
@@ -183,7 +183,7 @@ export function LandingPage() {
             transition={{ duration: 3, repeat: Infinity }}
           >
             FRAGMENTED<br />REALITY
-          </h1>
+          </motion.h1>
 
           <p
             className="mt-8 text-cyan-200/60 type-body font-light max-w-2xl mx-auto"
