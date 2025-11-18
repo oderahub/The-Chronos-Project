@@ -210,22 +210,8 @@ export function LandingPage() {
       </div>
 
       {/* Floating accent elements */}
-      <motion.div
-        className="absolute top-1/4 right-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl"
-        animate={{
-          x: [0, 30, -30, 0],
-          y: [0, -30, 30, 0],
-        }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"
-        animate={{
-          x: [0, -30, 30, 0],
-          y: [0, 30, -30, 0],
-        }}
-        transition={{ duration: 10, repeat: Infinity }}
-      />
+      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl" />
     </section>
   );
 }
