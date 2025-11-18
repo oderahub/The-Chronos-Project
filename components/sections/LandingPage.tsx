@@ -119,7 +119,7 @@ export function LandingPage() {
     window.scrollTo({ left: window.innerWidth, behavior: 'smooth' });
   };
 
-  const parallaxOffset = scrollY * 0.5;
+  const parallaxOffset = typeof window !== 'undefined' ? scrollY * 0.5 : 0;
 
   return (
     <section ref={sectionRef} className="landing-section w-screen h-screen relative overflow-hidden bg-void">
