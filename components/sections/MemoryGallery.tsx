@@ -48,7 +48,18 @@ export function MemoryGallery() {
   const capsules = useCapsuleStore((state) => state.capsules);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<(typeof hardcodedImages)[0] | null>(null);
+  const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollX);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const allItems = capsules.length > 0 ? capsules : hardcodedImages;
 
@@ -65,11 +76,36 @@ export function MemoryGallery() {
   };
 
   const currentItem = allItems[currentIndex];
+  const parallaxOffset = (scrollY - window.innerWidth * 3) * 0.5;
 
   return (
-    <section className="w-screen h-screen relative overflow-hidden bg-void flex flex-col items-center justify-center">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-ink via-void to-graphite" />
+    <section ref={sectionRef} className="gallery-section w-screen h-screen relative overflow-hidden bg-void flex flex-col items-center justify-center">
+      {/* Background gradient with parallax */}
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-violet-950/40 via-ink to-graphite"
+        style={{
+          transform: `translateX(${parallaxOffset}px)`,
+          transition: 'transform 0.1s ease-out',
+        }}
+      />
+
+      {/* Floating accent elements */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl"
+        animate={{
+          x: [0, 60, -60, 0],
+          y: [0, -60, 60, 0],
+        }}
+        transition={{ duration: 12, repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl"
+        animate={{
+          x: [0, -60, 60, 0],
+          y: [0, 60, -60, 0],
+        }}
+        transition={{ duration: 14, repeat: Infinity }}
+      />
 
       {/* Selected Image Lightbox */}
       {selectedImage && !capsules.length && (
