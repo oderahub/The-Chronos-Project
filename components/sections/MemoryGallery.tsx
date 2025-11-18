@@ -76,7 +76,7 @@ export function MemoryGallery() {
   };
 
   const currentItem = allItems[currentIndex];
-  const parallaxOffset = (scrollY - window.innerWidth * 3) * 0.5;
+  const parallaxOffset = typeof window !== 'undefined' ? (scrollY - window.innerWidth * 3) * 0.5 : 0;
 
   return (
     <section ref={sectionRef} className="gallery-section w-screen h-screen relative overflow-hidden bg-void flex flex-col items-center justify-center">
