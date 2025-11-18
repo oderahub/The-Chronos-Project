@@ -185,14 +185,14 @@ export function LandingPage() {
             FRAGMENTED<br />REALITY
           </motion.h1>
 
-          <p
+          <motion.p
             className="mt-8 text-cyan-200/60 type-body font-light max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             Where fragmented moments crystallize into permanent digital artifacts
-          </p>
+          </motion.p>
         </div>
       </div>
 
