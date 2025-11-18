@@ -144,31 +144,44 @@ export function MemoryGallery() {
       {/* Content */}
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-8">
         {/* Title */}
-        <div className="absolute top-16 text-center">
+        <motion.div
+          className="absolute top-16 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
           <h1
             className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-pink-400 to-red-500"
             style={{
               fontSize: 'clamp(48px, 10vw, 100px)',
               letterSpacing: '-0.03em',
               lineHeight: '1.1',
-              textShadow: '0 10px 40px rgba(168, 85, 247, 0.2)',
+              textShadow: '0 10px 40px rgba(168, 85, 247, 0.3), 0 0 30px rgba(236, 72, 153, 0.15)',
               filter: 'drop-shadow(0 0 20px rgba(236, 72, 153, 0.2))',
             }}
           >
             THE ARCHIVE
           </h1>
-        </div>
+        </motion.div>
 
         {/* Carousel */}
         <div className="w-full max-w-3xl">
           {/* Main Image Display */}
-          <div className="relative mb-12 aspect-square rounded-xl overflow-hidden group cursor-pointer">
+          <motion.div
+            className="relative mb-12 aspect-square rounded-2xl overflow-hidden group cursor-pointer"
+            key={currentIndex}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5 }}
+          >
             {typeof currentItem === 'string' ? (
               // Capsule image display
               <img
                 src={`https://source.unsplash.com/random/600x600/?${encodeURIComponent(currentItem)}`}
                 alt="Memory"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
             ) : (
               // Hardcoded image display
@@ -176,49 +189,62 @@ export function MemoryGallery() {
                 <img
                   src={currentItem.src}
                   alt={currentItem.alt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   onClick={() => setSelectedImage(currentItem)}
                 />
                 <div
-                  className={`absolute inset-0 bg-gradient-to-t ${currentItem.color} opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
+                  className={`absolute inset-0 bg-gradient-to-t ${currentItem.color} opacity-15 group-hover:opacity-30 transition-opacity duration-300`}
                 />
+                {/* Glow effect on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-2xl shadow-violet-500/40 rounded-2xl" />
               </>
             )}
 
             {/* Play button overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-              <div className="w-16 h-16 border-2 border-pulse rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-pulse fill-current ml-1" viewBox="0 0 24 24">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                className="w-16 h-16 border-2 border-violet-400 rounded-full flex items-center justify-center"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <svg className="w-8 h-8 text-violet-400 fill-current ml-1" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Info */}
           {typeof currentItem === 'object' && 'title' in currentItem && (
-            <div className="text-center mb-8">
-              <h2 className="type-headline text-frost mb-3">{currentItem.title}</h2>
-              <p className="type-body text-ash/70 font-light">{currentItem.alt}</p>
-            </div>
+            <motion.div
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h2 className="type-headline text-violet-100 mb-3 group-hover:text-violet-200 transition-colors">{currentItem.title}</h2>
+              <p className="type-body text-violet-200/60 font-light">{currentItem.alt}</p>
+            </motion.div>
           )}
 
           {/* Navigation */}
           <div className="flex items-center justify-center gap-8">
             {/* Prev Button */}
-            <button
+            <motion.button
               onClick={handlePrev}
-              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center hover:bg-violet-500/10 hover:border-violet-400 transition-all"
+              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center backdrop-blur-md hover:bg-violet-500/10 hover:border-violet-300 transition-all"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-            </button>
+            </motion.button>
 
             {/* Dots */}
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               {allItems.map((_, idx) => (
-                <button
+                <motion.button
                   key={idx}
                   onClick={() => handleDotClick(idx)}
                   className={`h-2 rounded-full transition-all ${
@@ -226,34 +252,49 @@ export function MemoryGallery() {
                       ? 'bg-gradient-to-r from-violet-500 to-pink-500 w-8'
                       : 'bg-violet-500/30 w-2 hover:bg-violet-500/50'
                   }`}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
                 />
               ))}
             </div>
 
             {/* Next Button */}
-            <button
+            <motion.button
               onClick={handleNext}
-              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center hover:bg-violet-500/10 hover:border-violet-400 transition-all"
+              className="w-12 h-12 rounded-full border border-violet-500/50 text-violet-400 flex items-center justify-center backdrop-blur-md hover:bg-violet-500/10 hover:border-violet-300 transition-all"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
+            </motion.button>
           </div>
 
           {/* Counter */}
-          <div className="text-center mt-8">
+          <motion.div
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             <p className="type-micro text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400 tracking-widest font-semibold">
               {currentIndex + 1} / {allItems.length}
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Empty state message for user capsules */}
         {capsules.length === 0 && (
-          <p className="absolute bottom-8 text-frost/70 type-body font-light max-w-md text-center">
+          <motion.p
+            className="absolute bottom-8 text-violet-200/60 type-body font-light max-w-md text-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
             These are example memories. Deposit your own to populate the archive.
-          </p>
+          </motion.p>
         )}
       </div>
     </section>
