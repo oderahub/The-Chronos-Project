@@ -131,14 +131,14 @@ export function OnboardingTerminal() {
       <div
         className="absolute bottom-12 right-12 z-20"
       >
-        <button
+        <motion.button
           onClick={handleInitialize}
           className="px-8 py-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/50 text-orange-300 type-body font-light backdrop-blur-md hover:border-orange-300 hover:from-orange-500/30 hover:to-red-500/30 hover:shadow-lg hover:shadow-orange-500/30 transition-all rounded-lg"
           whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 152, 0, 0.1)' }}
           whileTap={{ scale: 0.95 }}
         >
           INITIALIZE ARCHIVING →
-        </button>
+        </motion.button>
       </div>
     </section>
   );
