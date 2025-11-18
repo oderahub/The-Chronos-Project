@@ -88,7 +88,7 @@ export function OnboardingTerminal() {
           }}
           suppressHydrationWarning
         >
-          <h1
+          <motion.h1
             className="font-extralight mb-12 text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-pink-400 to-red-500"
             style={{
               fontSize: 'clamp(50px, 12vw, 160px)',
@@ -107,7 +107,7 @@ export function OnboardingTerminal() {
             transition={{ duration: 3, repeat: Infinity }}
           >
             CONSCIOUSNESS<br />PRESERVED
-          </h1>
+          </motion.h1>
 
           <p
             className="text-orange-200/70 font-light leading-relaxed"
