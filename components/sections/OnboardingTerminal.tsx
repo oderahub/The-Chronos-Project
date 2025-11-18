@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 
 export function OnboardingTerminal() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -82,16 +81,13 @@ export function OnboardingTerminal() {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-3xl px-8">
-        <motion.div
+        <div
           style={{
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
           }}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          suppressHydrationWarning
         >
-          <motion.h1
+          <h1
             className="font-extralight mb-12 text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-pink-400 to-red-500"
             style={{
               fontSize: 'clamp(50px, 12vw, 160px)',
@@ -110,9 +106,9 @@ export function OnboardingTerminal() {
             transition={{ duration: 3, repeat: Infinity }}
           >
             CONSCIOUSNESS<br />PRESERVED
-          </motion.h1>
+          </h1>
 
-          <motion.p
+          <p
             className="text-orange-200/70 font-light leading-relaxed"
             style={{
               fontSize: 'clamp(16px, 2vw, 24px)',
@@ -126,27 +122,23 @@ export function OnboardingTerminal() {
             viewport={{ once: true }}
           >
             Preserve your fragmented memories as permanent digital artifacts in The Archive. Each memory becomes a crystallized moment, untouched by time.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
 
       {/* CTA Button */}
-      <motion.div
+      <div
         className="absolute bottom-12 right-12 z-20"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        viewport={{ once: true }}
       >
-        <motion.button
+        <button
           onClick={handleInitialize}
           className="px-8 py-4 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/50 text-orange-300 type-body font-light backdrop-blur-md hover:border-orange-300 hover:from-orange-500/30 hover:to-red-500/30 hover:shadow-lg hover:shadow-orange-500/30 transition-all rounded-lg"
           whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 152, 0, 0.1)' }}
           whileTap={{ scale: 0.95 }}
         >
           INITIALIZE ARCHIVING →
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
     </section>
   );
 }
