@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 interface MelodyNote {
   freq: number;
@@ -305,8 +306,13 @@ export function AudioPlayer() {
   }, []);
 
   return (
-    <div className="audio-player-container fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all">
-      <button
+    <motion.div
+      className="audio-player-container fixed bottom-8 left-8 z-40 flex items-center gap-4 backdrop-blur-2xl bg-black/40 border border-cyan-500/50 rounded-full px-6 py-3 hover:border-cyan-400 transition-all shadow-lg shadow-cyan-500/10"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 1 }}
+    >
+      <motion.button
         onClick={togglePlayPause}
         className={`audio-player-toggle transition-all ${
           isPlaying
@@ -314,6 +320,8 @@ export function AudioPlayer() {
             : 'text-cyan-500/60 hover:text-cyan-400'
         }`}
         title={isPlaying ? 'Pause' : 'Play'}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
         {isPlaying ? (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -324,11 +332,17 @@ export function AudioPlayer() {
             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
           </svg>
         )}
-      </button>
+      </motion.button>
 
       {isPlaying && (
-        <>
-          <input
+        <motion.div
+          initial={{ opacity: 0, width: 0 }}
+          animate={{ opacity: 1, width: 'auto' }}
+          exit={{ opacity: 0, width: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center gap-4"
+        >
+          <motion.input
             type="range"
             min="0"
             max="0.25"
@@ -341,11 +355,16 @@ export function AudioPlayer() {
             }}
           />
 
-          <span className="audio-player-percentage text-cyan-400/80 text-xs font-light whitespace-nowrap">
+          <motion.span
+            className="audio-player-percentage text-cyan-400/80 text-xs font-light whitespace-nowrap"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             {Math.round((volume / 0.25) * 100)}%
-          </span>
-        </>
+          </motion.span>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
