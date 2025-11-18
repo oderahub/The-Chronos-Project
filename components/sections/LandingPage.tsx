@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 
 function ARCornerBracket({ position }: { position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }) {
   const positionClasses = {
@@ -158,16 +157,13 @@ export function LandingPage() {
 
       {/* Hero Text - Center with animations */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
-        <motion.div
+        <div
           className="text-center"
           style={{
             transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`,
           }}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <motion.h1
+          <h1
             className="font-extralight text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500"
             style={{
               fontSize: 'clamp(60px, 14vw, 200px)',
@@ -186,35 +182,32 @@ export function LandingPage() {
             transition={{ duration: 3, repeat: Infinity }}
           >
             FRAGMENTED<br />REALITY
-          </motion.h1>
+          </h1>
 
-          <motion.p
+          <p
             className="mt-8 text-cyan-200/60 type-body font-light max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             Where fragmented moments crystallize into permanent digital artifacts
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
 
       {/* Bottom CTA - Enhanced glass morphism */}
-      <motion.div
+      <div
         className="absolute bottom-12 right-12 z-20"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
       >
-        <motion.button
+        <button
           onClick={handleBeginArchiving}
           className="px-8 py-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 text-cyan-300 type-body font-light backdrop-blur-md hover:border-cyan-300 hover:from-cyan-500/30 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/30 transition-all rounded-lg"
           whileHover={{ scale: 1.05, backgroundColor: 'rgba(0, 212, 255, 0.1)' }}
           whileTap={{ scale: 0.95 }}
         >
           BEGIN ARCHIVING →
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
 
       {/* Floating accent elements */}
       <motion.div
