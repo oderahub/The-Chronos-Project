@@ -36,6 +36,7 @@ export function ArchivingChamber() {
             transform: `translateX(${parallaxOffset}px)`,
             transition: 'transform 0.1s ease-out',
           }}
+          suppressHydrationWarning
         >
           <video
             autoPlay
