@@ -109,7 +109,7 @@ export function OnboardingTerminal() {
             CONSCIOUSNESS<br />PRESERVED
           </motion.h1>
 
-          <p
+          <motion.p
             className="text-orange-200/70 font-light leading-relaxed"
             style={{
               fontSize: 'clamp(16px, 2vw, 24px)',
@@ -123,7 +123,7 @@ export function OnboardingTerminal() {
             viewport={{ once: true }}
           >
             Preserve your fragmented memories as permanent digital artifacts in The Archive. Each memory becomes a crystallized moment, untouched by time.
-          </p>
+          </motion.p>
         </div>
       </div>
 
