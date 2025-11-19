@@ -112,13 +112,23 @@ Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2
   if (!hasApiKey) {
     return (
       <div>
-        <p className="text-danger type-body font-light text-sm">{error}</p>
+        <ErrorModal
+          isOpen={true}
+          message="The memory weaving system requires proper configuration. Please contact support."
+          onClose={() => {}}
+        />
       </div>
     );
   }
 
   return (
     <div className="w-full">
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        message={error}
+        onClose={() => setIsErrorModalOpen(false)}
+      />
+
       {!story ? (
         <div className="space-y-4">
           <textarea
@@ -128,10 +138,6 @@ Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2
             className="w-full h-24 p-4 bg-white/5 border border-emerald-500/30 rounded-lg text-frost/90 placeholder-ash/50 focus:outline-none focus:border-emerald-500/60 transition-colors text-sm font-light resize-none"
             disabled={isLoading}
           />
-
-          {error && (
-            <p className="text-danger/80 text-sm font-light">{error}</p>
-          )}
 
           <button
             onClick={handleGenerate}
