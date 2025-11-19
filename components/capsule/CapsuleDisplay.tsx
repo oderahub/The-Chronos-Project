@@ -1,6 +1,7 @@
 'use client';
 
 import { Capsule } from '@/lib/store';
+import { getImageUrlForPrompt } from '@/lib/utils/image-search';
 
 interface CapsuleDisplayProps {
   capsule: Capsule;
