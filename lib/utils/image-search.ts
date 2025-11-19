@@ -1,50 +1,60 @@
 /**
- * Generate image URLs that actually match the search prompt
- * Uses multiple fallback strategies to ensure relevant images
+ * Extract meaningful keywords from a prompt
+ * Removes common stop words and returns the most significant terms
  */
+function extractKeywords(prompt: string): string {
+  const stopWords = new Set([
+    'a', 'an', 'the', 'and', 'or', 'in', 'on', 'at', 'to', 'with', 'from', 'by',
+    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'of', 'for', 'about',
+    'as', 'into', 'through', 'during', 'but', 'am', 'that', 'this', 'these',
+    'those', 'it', 'its', 'which', 'who', 'whom', 'he', 'she', 'they', 'them'
+  ]);
 
-export function getImageUrlForPrompt(prompt: string, index: number): string {
-  // Clean and normalize the prompt
   const cleanPrompt = prompt.trim().toLowerCase();
-  
-  // Extract key words (remove prepositions, articles, etc)
+
+  // Split and filter out stop words, keep meaningful terms
   const keywords = cleanPrompt
     .split(/\s+/)
-    .filter(word => !['a', 'an', 'the', 'and', 'or', 'in', 'on', 'at', 'to', 'with', 'from', 'by'].includes(word))
-    .slice(0, 3) // Take first 3 meaningful words
-    .join('+');
+    .filter(word => word.length > 2 && !stopWords.has(word))
+    .slice(0, 4);
 
-  // Strategy 1: Use Unsplash API search (more reliable for specific queries)
-  // Format: source.unsplash.com supports search with proper URL encoding
-  const unsplashUrl = `https://source.unsplash.com/600x600?${encodeURIComponent(keywords)}`;
-
-  // Strategy 2: Fallback to Pexels which has better matching
-  // This would need an API key, so we skip for now
-  
-  // Strategy 3: Use Pixabay which doesn't require auth for basic URLs
-  // pixabay doesn't have a direct URL generator, so skip
-
-  // Return the primary strategy with a cache-busting parameter
-  return `${unsplashUrl}&t=${Date.now()}_${index}`;
+  return keywords.join(' ');
 }
 
 /**
- * Alternative: Get multiple image candidates and let the user pick the best one
- * This is what production apps do for quality control
+ * Generate image URLs that actually match the search prompt
+ * Uses multiple strategies to ensure relevant images are returned
+ */
+export function getImageUrlForPrompt(prompt: string, index: number): string {
+  const keywords = extractKeywords(prompt);
+
+  // Encode the keywords for URL use
+  const encodedKeywords = encodeURIComponent(keywords);
+
+  // Use Unsplash API search endpoint with proper query parameter format
+  // This is more reliable than source.unsplash.com for specific searches
+  const unsplashSearchUrl = `https://source.unsplash.com/600x600/?${encodedKeywords}`;
+
+  // Add a cache-busting parameter to prevent caching issues
+  // Use the index to vary the results slightly across multiple calls
+  const cacheBuster = `${Date.now()}_${index}`;
+
+  // Return the URL with cache buster to ensure fresh images
+  return `${unsplashSearchUrl}&seed=${cacheBuster}`;
+}
+
+/**
+ * Get multiple image candidate URLs for the same prompt
+ * This can be used if you want to show the user multiple options
  */
 export function getImageUrlsForPrompt(prompt: string): string[] {
-  const cleanPrompt = prompt.trim().toLowerCase();
-  
-  const keywords = cleanPrompt
-    .split(/\s+/)
-    .filter(word => !['a', 'an', 'the', 'and', 'or', 'in', 'on', 'at', 'to', 'with', 'from', 'by'].includes(word))
-    .slice(0, 3)
-    .join('+');
+  const keywords = extractKeywords(prompt);
+  const encodedKeywords = encodeURIComponent(keywords);
 
-  // Return 3 different variations to increase chance of matching
+  // Generate 3 variations with different parameters to get diverse results
   return [
-    `https://source.unsplash.com/600x600?${encodeURIComponent(keywords)}&1`,
-    `https://source.unsplash.com/600x600?${encodeURIComponent(prompt.split(' ')[0])}&2`, // Try first word
-    `https://source.unsplash.com/600x600?${encodeURIComponent(cleanPrompt)}&3`, // Try full prompt
+    `https://source.unsplash.com/600x600/?${encodedKeywords}&seed=${Date.now()}_1`,
+    `https://source.unsplash.com/600x600/?${encodedKeywords}&seed=${Date.now()}_2`,
+    `https://source.unsplash.com/600x600/?${encodedKeywords}&seed=${Date.now()}_3`,
   ];
 }
