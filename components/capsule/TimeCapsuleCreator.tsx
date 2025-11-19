@@ -53,15 +53,25 @@ A user has deposited a memory fragment: "${prompt}"
 
 Your task is to:
 1. Transcribe the memory into a short, evocative story (2-3 sentences), as if it's an echo you've recovered from time itself.
-2. Extract 4 key visual motifs from the memory and output them as simple, vivid image search terms that evoke the emotional essence of the memory.
+2. Extract 4 deeply specific visual motifs that directly embody the emotional core and key elements of the memory. Each prompt should be a 4-6 word phrase that combines:
+   - A specific visual element from the story
+   - An emotional or atmospheric descriptor
+   - A compositional hint
+
+   Example: "weathered stone wall covered in morning dew" instead of "stone wall"
 
 CRITICAL: You MUST return ONLY a valid JSON object with exactly these fields:
 {
   "story": "Your evocative story here",
-  "imagePrompts": ["visual prompt 1", "visual prompt 2", "visual prompt 3", "visual prompt 4"]
+  "imagePrompts": ["detailed visual prompt 1", "detailed visual prompt 2", "detailed visual prompt 3", "detailed visual prompt 4"]
 }
 
-Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2-4 words describing a visual concept.`;
+Make sure:
+- imagePrompts is an array of exactly 4 strings
+- Each string is 4-6 words, specific and emotionally resonant
+- Each prompt directly relates to elements mentioned in the story
+- Prompts capture mood, lighting, texture, and narrative essence
+- All prompts are unique and complementary to each other`;
 
       const response = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
