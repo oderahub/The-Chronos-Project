@@ -144,6 +144,9 @@ export function LandingPage() {
         </video>
       </div>
 
+      {/* 3D Scene Background */}
+      <ThreeDScene sectionColor="#00d4ff" intensity={1} />
+
       {/* Gradient Overlays - Layered for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70" />
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-950/30 via-transparent to-blue-950/30" />
