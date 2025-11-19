@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { ThreeDScene } from '@/components/ThreeDScene';
 
 export function OnboardingTerminal() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
