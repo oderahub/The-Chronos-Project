@@ -180,7 +180,7 @@ Make sure:
                   className="w-full h-32 rounded-lg overflow-hidden bg-white/5 border border-emerald-500/20 flex items-center justify-center"
                 >
                   <img
-                    src={`https://source.unsplash.com/random/400x400/?${encodeURIComponent(imagePrompt)}`}
+                    src={getImageUrlForPrompt(imagePrompt, idx)}
                     alt={imagePrompt}
                     className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
                     onError={(e) => {
