@@ -95,6 +95,11 @@ Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2
 
       setStory(storyText);
       setImagePrompts(imagePrpts);
+
+      // Save to persistent vault
+      const { addCapsule } = useCapsuleStore.getState();
+      addCapsule({ story: storyText, imagePrompts: imagePrpts });
+
       onCapsuleCreated({ story: storyText, imagePrompts: imagePrpts });
 
       setTimeout(() => {
