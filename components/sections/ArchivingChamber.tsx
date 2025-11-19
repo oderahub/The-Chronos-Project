@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { ThreeDScene } from '@/components/ThreeDScene';
 import { TimeCapsuleCreator } from '@/components/capsule/TimeCapsuleCreator';
 import { useCapsuleStore } from '@/lib/store';
 
