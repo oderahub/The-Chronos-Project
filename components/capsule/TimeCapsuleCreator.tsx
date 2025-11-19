@@ -101,7 +101,9 @@ Make sure imagePrompts is an array of exactly 4 strings. Each string should be 2
         window.scrollTo({ left: window.innerWidth * 3, behavior: 'smooth' });
       }, 500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to weave story.');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to weave story.';
+      setError(errorMsg);
+      setIsErrorModalOpen(true);
     } finally {
       setIsLoading(false);
     }
