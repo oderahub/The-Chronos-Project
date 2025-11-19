@@ -191,6 +191,17 @@ Make sure:
               ))}
             </div>
           </div>
+
+          <button
+            onClick={() => {
+              setPrompt('');
+              setStory('');
+              setImagePrompts([]);
+            }}
+            className="w-full px-6 py-3 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 border border-emerald-500/50 text-emerald-300 type-body font-light rounded-lg hover:from-emerald-500/50 hover:to-teal-500/50 hover:border-emerald-500 transition-all text-sm"
+          >
+            ADD ANOTHER WAVE →
+          </button>
         </div>
       )}
     </div>
