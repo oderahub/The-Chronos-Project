@@ -30,6 +30,7 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError('Enter a memory fragment.');
+      setIsErrorModalOpen(true);
       return;
     }
 
