@@ -50,6 +50,9 @@ export function ArchivingChamber() {
           </video>
         </div>
 
+        {/* 3D Scene Background */}
+        <ThreeDScene sectionColor="#10b981" intensity={1} />
+
         {/* Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-green-950/20" />
