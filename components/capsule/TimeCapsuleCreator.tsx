@@ -14,6 +14,7 @@ export function TimeCapsuleCreator({ onCapsuleCreated }: TimeCapsuleCreatorProps
   const [imagePrompts, setImagePrompts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
