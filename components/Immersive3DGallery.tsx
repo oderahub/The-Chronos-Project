@@ -121,7 +121,7 @@ export function Immersive3DGallery({ capsules, onSelectMemory }: Immersive3DGall
                       whileHover={{ scale: 1.05 }}
                     >
                       <img
-                        src={`https://source.unsplash.com/random/200x200/?${encodeURIComponent(prompt)}`}
+                        src={getImageUrlForPrompt(prompt, i)}
                         alt={prompt}
                         className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
                         onError={(e) => {
