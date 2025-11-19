@@ -3,47 +3,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ThreeDScene } from '@/components/ThreeDScene';
-import { useCapsuleStore } from '@/lib/store';
+import { Immersive3DGallery } from '@/components/Immersive3DGallery';
+import { useCapsuleStore, Capsule } from '@/lib/store';
 import { CapsuleDisplay } from '@/components/capsule/CapsuleDisplay';
-
-const hardcodedImages = [
-  {
-    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
-    alt: 'Mountain landscape at sunset',
-    title: 'Echoes of Dawn',
-    color: 'from-blue-500 to-cyan-400',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=600&fit=crop',
-    alt: 'Northern lights',
-    title: 'Aurora Fragments',
-    color: 'from-green-500 to-emerald-400',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
-    alt: 'Ocean waves',
-    title: 'Tidal Memories',
-    color: 'from-blue-600 to-blue-400',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=600&h=600&fit=crop',
-    alt: 'Desert dunes',
-    title: 'Sand Whispers',
-    color: 'from-orange-500 to-yellow-400',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=600&fit=crop',
-    alt: 'Forest canopy',
-    title: 'Verdant Dreams',
-    color: 'from-green-600 to-teal-500',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop',
-    alt: 'Starry night sky',
-    title: 'Cosmic Echoes',
-    color: 'from-purple-600 to-pink-500',
-  },
-];
 
 export function MemoryGallery() {
   const capsules = useCapsuleStore((state) => state.capsules);
