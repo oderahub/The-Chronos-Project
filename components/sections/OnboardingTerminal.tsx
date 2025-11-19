@@ -60,6 +60,9 @@ export function OnboardingTerminal() {
         </video>
       </div>
 
+      {/* 3D Scene Background */}
+      <ThreeDScene sectionColor="#ff5722" intensity={1.2} />
+
       {/* Gradient Overlays - Layered */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70" />
       <div className="absolute inset-0 bg-gradient-to-r from-orange-950/30 via-transparent to-red-950/30" />
