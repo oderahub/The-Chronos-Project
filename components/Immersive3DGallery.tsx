@@ -14,7 +14,7 @@ export function Immersive3DGallery({ capsules, onSelectMemory }: Immersive3DGall
 
   if (capsules.length === 0) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-center">
+      <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
         <motion.div
           className="mb-8"
           animate={{ scale: [1, 1.1, 1] }}
@@ -35,25 +35,18 @@ export function Immersive3DGallery({ capsules, onSelectMemory }: Immersive3DGall
   }
 
   return (
-    <div className="w-full h-full flex flex-col overflow-y-auto">
-      {/* Archive Header */}
-      <div className="relative z-10 mb-8 sticky top-0 bg-void/80 backdrop-blur-lg border-b border-violet-500/20 p-6">
-        <motion.h2
-          className="text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-purple-500"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          Memory Constellation
-        </motion.h2>
-        <p className="text-sm text-ash/60 font-light mt-2">{capsules.length} memories preserved in eternity</p>
+    <div className="w-full p-8">
+      {/* Subtitle */}
+      <div className="mb-8">
+        <p className="text-sm text-ash/60 font-light">{capsules.length} memories preserved in eternity</p>
       </div>
 
       {/* 3D Memory Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
         {capsules.map((capsule, idx) => (
           <motion.div
             key={capsule.id}
-            className="h-80 cursor-pointer perspective"
+            className="h-80 cursor-pointer"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
