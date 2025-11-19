@@ -22,9 +22,12 @@ export function CapsuleDisplay({ capsule }: CapsuleDisplayProps) {
               {capsule.imagePrompts.map((prompt, idx) => (
                 <img
                   key={idx}
-                  src={`https://source.unsplash.com/random/400x400/?${encodeURIComponent(prompt)}`}
+                  src={getImageUrlForPrompt(prompt, idx)}
                   alt={prompt}
                   className="w-full h-40 object-cover rounded-lg opacity-70 group-hover:opacity-90 transition-opacity ring-1 ring-violet-500/30"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://picsum.photos/400/400?random=${idx}`;
+                  }}
                 />
               ))}
             </div>
