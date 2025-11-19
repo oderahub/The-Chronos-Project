@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Capsule } from '@/lib/store';
+import { getImageUrlForPrompt } from '@/lib/utils/image-search';
 
 interface Immersive3DGalleryProps {
   capsules: Capsule[];
