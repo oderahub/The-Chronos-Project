@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ErrorModal } from '@/components/ErrorModal';
+import { useCapsuleStore } from '@/lib/store';
 
 interface TimeCapsuleCreatorProps {
   onCapsuleCreated: (capsule: { story: string; imagePrompts: string[] }) => void;
